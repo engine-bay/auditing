@@ -1,12 +1,10 @@
-﻿using EngineBay.Core;
-using EngineBay.Persistence;
-using Newtonsoft.Json;
-using NUnit.Framework;
-using System.Security.Claims;
-using Xunit;
-
-namespace EngineBay.Auditing.Tests.AuditQueryTests
+﻿namespace EngineBay.Auditing.Tests.AuditQueryTests
 {
+    using EngineBay.Core;
+    using EngineBay.Persistence;
+    using Newtonsoft.Json;
+    using Xunit;
+
     public class AuditQueryTests : BaseAuditQueryTest
     {
         public AuditQueryTests()
@@ -20,26 +18,25 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
             }
 
             this.AuditingDbContext.AddRange(auditEntries);
-            this.AuditingDbContext.SaveChanges(this.CurrentIdentity);
+            this.AuditingDbContext.SaveChanges(this.ApplicationUser);
         }
 
         [Fact]
         public async Task AuditEntryCanBeReturnedByGuid()
         {
-            var query = new GetAuditEntry(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new GetAuditEntry(this.AuditingDbContext);
             var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("4c334609-b5c8-4652-8f4b-8cc9ca604392"));
 
             var dto = await query.Handle(getAuditEntryRequest, CancellationToken.None);
 
-            Assert.Equal("ef57cf3c-fd93-4059-a080-a6e637d5ab74", dto.OrganisationId.ToString());
             Assert.Equal("consequat morbi a ipsum integer a nibh", dto.Changes);
         }
 
         [Fact]
         public async Task GettingAuditEntryThatDoesNotExistThrowsAnException()
         {
-            var query = new GetAuditEntry(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
-            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("307fa9e8-a8f0-43cb-845a-38d7d916482f"));
+            var query = new GetAuditEntry(this.AuditingDbContext);
+            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("f8bd38e4-0778-4dc9-b092-09f590dfabf3"));
 
             await Assert.ThrowsAsync<NotFoundException>(async () =>
               await query.Handle(getAuditEntryRequest, CancellationToken.None));
@@ -48,19 +45,19 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
         [Fact]
         public async Task EmptyPaginationParametersBringsDataAuditEntries()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
 
-            Assert.Equal(6, dto.Data.Count());
+            Assert.Equal(10, dto.Data.Count());
         }
 
         [Fact]
-        public async Task LimitingPaginationParametersShouldBringBackNoAuditEntries()
+        public async Task LimitingPaginationParametersToZeroShouldBringBackNoAuditEntries()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -75,26 +72,26 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
         }
 
         [Fact]
-        public async Task LimitingPaginationParametersShouldBringBackNoAuditEntriesButTheTotalShouldStillBeThere()
+        public async Task IncreasingPaginationParametersBeyondExistingEntriesShouldBringBackOnlyExisting()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
-                Limit = 10,
+                Limit = 20,
             };
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
 
-            Assert.Equal(6, dto.Total);
+            Assert.Equal(10, dto.Total);
         }
 
         [Fact]
         public async Task ThePageSizeOfPaginatedAuditEntriesCanBeControlled()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -109,13 +106,13 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
         }
 
         [Theory]
-        [InlineData("ActionType", "Thedrick")]
-        [InlineData("EntityName", "Thedrick")]
-        [InlineData("Id", "Audrie")]
-        [InlineData("ApplicationUserId", "Ziavani")]
+        [InlineData("ActionType", "Gwendolen")]
+        [InlineData("EntityName", "Teresina")]
+        [InlineData("Id", "Ryan")]
+        [InlineData("ApplicationUserId", "Gwendolen")]
         public async Task PaginatedAuditEntriesCanBeSortedInReverse(string sortBy, string expectedFullName)
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -127,17 +124,17 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
             var first = dto.Data.First();
-            Assert.Equal(expectedFullName, first.ApplicationUserFullName);
+            Assert.Equal(expectedFullName, first.ApplicationUserName);
         }
 
         [Theory]
-        [InlineData("ActionType", "Teresina")]
+        [InlineData("ActionType", "Ryan")]
         [InlineData("EntityName", "Ziavani")]
-        [InlineData("Id", "Teresina")]
+        [InlineData("Id", "Gwendolen")]
         [InlineData("ApplicationUserId", "Guthrie")]
         public async Task PaginatedAuditEntriesCanBeSorted(string sortBy, string expectedFullName)
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -149,13 +146,13 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
             var first = dto.Data.First();
-            Assert.Equal(expectedFullName, first.ApplicationUserFullName);
+            Assert.Equal(expectedFullName, first.ApplicationUserName);
         }
 
         [Fact]
         public async Task PaginatedAuditEntriesCanBeSortedButWithNoSpecifiedOrder()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -166,13 +163,13 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
             var first = dto.Data.First();
-            Assert.Equal("pede", first.ActionType);
+            Assert.Equal("volutpat", first.ActionType);
         }
 
         [Fact]
         public async Task PaginatedAuditEntriesCanBeSortedButWithNoSpecifiedOrderingProperty()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
+            var query = new QueryAuditEntries(this.AuditingDbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -183,73 +180,7 @@ namespace EngineBay.Auditing.Tests.AuditQueryTests
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
             var first = dto.Data.First();
-            Assert.Equal("Ziavani", first.ApplicationUserFullName);
-        }
-
-        [Fact]
-        public async Task OrganisationIdNotMatchingAndThrowsException()
-        {
-            var claims = new List<Claim>()
-      {
-        new Claim(System.Security.Claims.ClaimTypes.NameIdentifier, this.CurrentIdentity.Id.ToString() ?? "tests"),
-        new Claim("selectedOrganisationId", "6b27a21d-255a-49bb-9d86-8dfabc34b955"),
-        new Claim("selectedRoleId", "2da7fdb0-3240-4360-9b20-5c0d0e4ec19c"),
-      };
-
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            this.ClaimsPrincipal = new ClaimsPrincipal(identity);
-
-            var query = new GetAuditEntry(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
-            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("4c334609-b5c8-4652-8f4b-8cc9ca604392"));
-
-            await Assert.ThrowsAsync<NotFoundException>(async () =>
-              await query.Handle(getAuditEntryRequest, CancellationToken.None));
-        }
-
-        [Fact]
-        public async Task PaginatedAuditEntriesCanBeFilteredByFirtsOrganisationId()
-        {
-            var claims = new List<Claim>()
-      {
-        new Claim(System.Security.Claims.ClaimTypes.NameIdentifier, this.CurrentIdentity.Id.ToString() ?? "tests"),
-        new Claim("selectedOrganisationId", "ef57cf3c-fd93-4059-a080-a6e637d5ab74"),
-        new Claim("selectedRoleId", "9bad51f9-8b59-495f-a54d-79aac1c1f64b"),
-      };
-
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            this.ClaimsPrincipal = new ClaimsPrincipal(identity);
-
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
-
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
-
-            var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
-            var first = dto.Data.First();
-            Assert.Equal("ef57cf3c-fd93-4059-a080-a6e637d5ab74", first.OrganisationId.ToString());
-            Assert.Equal(6, dto.Data.Count());
-        }
-
-        [Fact]
-        public async Task PaginatedAuditEntriesCanBeFilteredBySecondOrganisationId()
-        {
-            var claims = new List<Claim>()
-      {
-        new Claim(System.Security.Claims.ClaimTypes.NameIdentifier, this.CurrentIdentity.Id.ToString() ?? "tests"),
-        new Claim("selectedOrganisationId", "d61bcd8a-7302-4ade-b8d0-bb0638844d53"),
-        new Claim("selectedRoleId", "471ab90b-33b9-41da-8587-de2b38e546cd"),
-      };
-
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            this.ClaimsPrincipal = new ClaimsPrincipal(identity);
-
-            var query = new QueryAuditEntries(this.AuditingDbContext, this.GetCurrentIdentityQuery, this.DataProtectorProvider);
-
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
-
-            var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
-            var first = dto.Data.First();
-            Assert.Equal("d61bcd8a-7302-4ade-b8d0-bb0638844d53", first.OrganisationId.ToString());
-            Assert.Equal(4, dto.Data.Count());
+            Assert.Equal("Ziavani", first.ApplicationUserName);
         }
     }
 }

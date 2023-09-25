@@ -35,13 +35,10 @@ namespace EngineBay.Auditing
 
         public AuditEntry ToDomainModel()
         {
-            var user = new ApplicationUser();
-            user.Username = this.ApplicationUserName;
-
             var auditEntry = new AuditEntry
             {
                 ApplicationUserId = this.ApplicationUserId,
-                ApplicationUser = user,
+                ApplicationUserName = this.ApplicationUserName,
                 EntityName = this.EntityName,
                 ActionType = this.ActionType,
                 EntityId = this.EntityId,

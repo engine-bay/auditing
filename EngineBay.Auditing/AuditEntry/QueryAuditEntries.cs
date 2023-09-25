@@ -36,7 +36,7 @@
                 nameof(AuditEntry.LastUpdatedAt) => auditEntry => auditEntry.LastUpdatedAt.ToString(),
                 nameof(AuditEntry.ActionType) => auditEntry => auditEntry.ActionType,
                 nameof(AuditEntry.ApplicationUserId) => auditEntry => auditEntry.ApplicationUserId.ToString(),
-                //nameof(AuditEntry.ApplicationUser.Username) => auditEntry => auditEntry.ApplicationUser.Username, TODO
+                nameof(AuditEntry.ApplicationUserName) => auditEntry => auditEntry.ApplicationUserName,
                 nameof(AuditEntry.EntityId) => auditEntry => auditEntry.EntityId,
                 nameof(AuditEntry.EntityName) => auditEntry => auditEntry.EntityName,
                 nameof(AuditEntry.Id) => auditEntry => auditEntry.Id.ToString(),

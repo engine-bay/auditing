@@ -1,4 +1,4 @@
-﻿namespace Auditing.Interceptors
+﻿namespace EngineBay.Auditing
 {
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@
     using System;
     using System.Threading.Tasks;
 
-    internal class DatabaseAuditingInterceptor : SaveChangesInterceptor
+    public class DatabaseAuditingInterceptor : SaveChangesInterceptor
     {
         private readonly HttpContextWrapper httpContextWrapper;
         private readonly JsonSerializerSettings jsonSerializerSettings;
@@ -130,16 +130,13 @@
                     throw new ArgumentException("Auditing change tracker entry changes were null");
                 }
 
-                var user = new ApplicationUser();
-                user.Username = httpContextWrapper.Username;
-
                 var auditEntry = new AuditEntry
                 {
                     ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
                     EntityId = entityId.CurrentValue.ToString(),
                     EntityName = entry.Metadata.ClrType.Name,
                     ApplicationUserId = httpContextWrapper.UserId,
-                    ApplicationUser = user,
+                    ApplicationUserName = httpContextWrapper.Username,
                     TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
                     TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
                 };
