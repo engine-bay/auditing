@@ -1,4 +1,4 @@
-﻿namespace EngineBay.Auditing.Tests.AuditQueryTests
+﻿namespace EngineBay.Auditing.Tests
 {
     using EngineBay.Core;
     using EngineBay.Persistence;

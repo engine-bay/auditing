@@ -12,9 +12,10 @@ namespace EngineBay.Auditing
         private readonly AuditingWriteDbContext dbContext;
         private readonly IValidator<CreateAuditEntryRequest> validator;
 
-        public CreateAuditEntry(AuditingWriteDbContext dbContext)
+        public CreateAuditEntry(AuditingWriteDbContext dbContext, IValidator<CreateAuditEntryRequest> validator)
         {
             this.dbContext = dbContext;
+            this.validator = validator;
         }
 
         public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest createAuditEntryRequest, ClaimsPrincipal user, CancellationToken cancellation)
