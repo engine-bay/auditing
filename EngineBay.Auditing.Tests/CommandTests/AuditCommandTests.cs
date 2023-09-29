@@ -5,7 +5,7 @@
     using Newtonsoft.Json;
     using Xunit;
 
-    public class AuditCommandTests : BaseAuditCommandTest
+    public class AuditCommandTests : BaseTestWithDbContext<AuditingWriteDbContext>
     {
         private readonly IValidator<CreateAuditEntryRequest> validator;
 
@@ -16,13 +16,13 @@
 
             var path = Path.GetFullPath(@"./TestData/audit-entries.json");
             List<AuditEntry>? auditEntries = JsonConvert.DeserializeObject<List<AuditEntry>>(File.ReadAllText(path));
-            var auditEntriesCount = this.AuditingWriteDbContext.AuditEntries.Count();
+            var auditEntriesCount = this.DbContext.AuditEntries.Count();
             if (auditEntries is not null)
             {
                 if (auditEntriesCount == 0)
                 {
-                    this.AuditingWriteDbContext.AddRange(auditEntries);
-                    this.AuditingWriteDbContext.SaveChanges(this.ApplicationUser);
+                    this.DbContext.AddRange(auditEntries);
+                    this.DbContext.SaveChanges(this.ApplicationUser);
                 }
             }
         }
@@ -33,7 +33,7 @@
         [InlineData("48b99ae0-d854-40ec-a041-3864a6c6265d", "bob", "insert", "", "someUser", "changes")]
         public async void CreatedAnAuditEntryCommand(string applicationUserId, string applicationUserName, string actionType, string entityId, string entityName, string changes)
         {
-            var command = new CreateAuditEntry(this.AuditingWriteDbContext, this.validator);
+            var command = new CreateAuditEntry(this.DbContext, this.validator);
 
             var auditEntry = new CreateAuditEntryRequest()
             {
@@ -62,7 +62,7 @@
         [InlineData("48b99ae0-d854-40ec-a041-3864a6c6265d", "bob", "insert", "", "someUser", "changes")]
         public async void CanQueryCreatedAuditEntryCommand(string applicationUserId, string applicationUserName, string actionType, string entityId, string entityName, string changes)
         {
-            var command = new CreateAuditEntry(this.AuditingWriteDbContext, this.validator);
+            var command = new CreateAuditEntry(this.DbContext, this.validator);
 
             var createAuditEntryRequest = new CreateAuditEntryRequest()
             {
@@ -84,7 +84,7 @@
             Assert.Equal(dto.EntityName, entityName);
             Assert.Equal(dto.Changes, changes);
 
-            var query = new GetAuditEntry(this.AuditingWriteDbContext);
+            var query = new GetAuditEntry(this.DbContext);
 
             var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, dto.Id);
 
@@ -106,7 +106,7 @@
         [InlineData("b688b38c-9ae1-41fa-8780-597d26490328", "bob", "insert", "23637a89-0a83-4257-a66b-a0dc2aca0139", "someUser", "")]
         public async void CreatedAnAuditEntryCommandShouldValidate(string applicationUserId, string applicationUserName, string actionType, string entityId, string entityName, string changes)
         {
-            var command = new CreateAuditEntry(this.AuditingWriteDbContext, this.validator);
+            var command = new CreateAuditEntry(this.DbContext, this.validator);
 
             var auditEntry = new CreateAuditEntryRequest()
             {

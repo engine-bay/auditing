@@ -5,26 +5,26 @@
     using Newtonsoft.Json;
     using Xunit;
 
-    public class AuditQueryTests : BaseAuditQueryTest
+    public class AuditQueryTests : BaseTestWithDbContext<AuditingDbContext>
     {
         public AuditQueryTests()
           : base(nameof(AuditQueryTests))
         {
             var path = Path.GetFullPath(@"./TestData/audit-entries.json");
             var auditEntries = JsonConvert.DeserializeObject<List<AuditEntry>>(File.ReadAllText(path));
-            if (auditEntries == null || this.AuditingDbContext.AuditEntries.Any())
+            if (auditEntries == null || this.DbContext.AuditEntries.Any())
             {
                 return;
             }
 
-            this.AuditingDbContext.AddRange(auditEntries);
-            this.AuditingDbContext.SaveChanges(this.ApplicationUser);
+            this.DbContext.AddRange(auditEntries);
+            this.DbContext.SaveChanges(this.ApplicationUser);
         }
 
         [Fact]
         public async Task AuditEntryCanBeReturnedByGuid()
         {
-            var query = new GetAuditEntry(this.AuditingDbContext);
+            var query = new GetAuditEntry(this.DbContext);
             var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("4c334609-b5c8-4652-8f4b-8cc9ca604392"));
 
             var dto = await query.Handle(getAuditEntryRequest, CancellationToken.None);
@@ -35,7 +35,7 @@
         [Fact]
         public async Task GettingAuditEntryThatDoesNotExistThrowsAnException()
         {
-            var query = new GetAuditEntry(this.AuditingDbContext);
+            var query = new GetAuditEntry(this.DbContext);
             var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("f8bd38e4-0778-4dc9-b092-09f590dfabf3"));
 
             await Assert.ThrowsAsync<NotFoundException>(async () =>
@@ -45,7 +45,7 @@
         [Fact]
         public async Task EmptyPaginationParametersBringsDataAuditEntries()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -57,7 +57,7 @@
         [Fact]
         public async Task LimitingPaginationParametersToZeroShouldBringBackNoAuditEntries()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -74,7 +74,7 @@
         [Fact]
         public async Task IncreasingPaginationParametersBeyondExistingEntriesShouldBringBackOnlyExisting()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -91,7 +91,7 @@
         [Fact]
         public async Task ThePageSizeOfPaginatedAuditEntriesCanBeControlled()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -112,7 +112,7 @@
         [InlineData("ApplicationUserId", "Gwendolen")]
         public async Task PaginatedAuditEntriesCanBeSortedInReverse(string sortBy, string expectedFullName)
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -134,7 +134,7 @@
         [InlineData("ApplicationUserId", "Guthrie")]
         public async Task PaginatedAuditEntriesCanBeSorted(string sortBy, string expectedFullName)
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -152,7 +152,7 @@
         [Fact]
         public async Task PaginatedAuditEntriesCanBeSortedButWithNoSpecifiedOrder()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 
@@ -169,7 +169,7 @@
         [Fact]
         public async Task PaginatedAuditEntriesCanBeSortedButWithNoSpecifiedOrderingProperty()
         {
-            var query = new QueryAuditEntries(this.AuditingDbContext);
+            var query = new QueryAuditEntries(this.DbContext);
 
             var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
 

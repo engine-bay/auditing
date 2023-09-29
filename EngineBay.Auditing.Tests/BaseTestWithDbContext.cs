@@ -1,34 +1,33 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
+    using System.Security.Claims;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
-    using System.Security.Claims;
 
-    public class BaseAuditCommandTest : IDisposable
+    public class BaseTestWithDbContext<TContext>
+        where TContext : ModuleDbContext
     {
         private bool isDisposed;
 
-        protected AuditingWriteDbContext AuditingWriteDbContext { get; set; }
-
         protected MockApplicationUser ApplicationUser { get; set; }
+
+        protected TContext DbContext { get; set; }
 
         protected ClaimsPrincipal ClaimsPrincipal { get; set; }
 
-        protected BaseAuditCommandTest(string databaseName)
+        protected BaseTestWithDbContext(string databaseName)
         {
             var auditingDbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
                 .UseInMemoryDatabase(databaseName)
                 .EnableSensitiveDataLogging()
                 .Options;
 
-            this.AuditingWriteDbContext = new AuditingWriteDbContext(auditingDbContextOptions);
-            this.AuditingWriteDbContext.Database.EnsureDeleted();
-            this.AuditingWriteDbContext.Database.EnsureCreated();
+            var context = Activator.CreateInstance(typeof(TContext), auditingDbContextOptions) as TContext;
+            ArgumentNullException.ThrowIfNull(context, nameof(context));
 
-            var persistenceDbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
-                .UseInMemoryDatabase(databaseName + "_persistence")
-                .EnableSensitiveDataLogging()
-                .Options;
+            this.DbContext = context;
+            this.DbContext.Database.EnsureDeleted();
+            this.DbContext.Database.EnsureCreated();
 
             this.ApplicationUser = new MockApplicationUser();
 
@@ -41,6 +40,7 @@
             this.ClaimsPrincipal = new ClaimsPrincipal(identity);
         }
 
+        /// <inheritdoc/>
         // Dispose() calls Dispose(true)
         public void Dispose()
         {
@@ -48,6 +48,7 @@
             GC.SuppressFinalize(this);
         }
 
+        /// <inheritdoc/>
         // The bulk of the clean-up code is implemented in Dispose(bool)
         protected virtual void Dispose(bool disposing)
         {
@@ -59,8 +60,8 @@
             if (disposing)
             {
                 // free managed resources
-                this.AuditingWriteDbContext.Database.EnsureDeleted();
-                this.AuditingWriteDbContext.Dispose();
+                this.DbContext.Database.EnsureDeleted();
+                this.DbContext.Dispose();
             }
 
             this.isDisposed = true;
