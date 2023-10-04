@@ -18,18 +18,15 @@ namespace EngineBay.Auditing
             this.validator = validator;
         }
 
-        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest createAuditEntryRequest, ClaimsPrincipal user, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest inputParameters, ClaimsPrincipal user, CancellationToken cancellation)
         {
-            if (createAuditEntryRequest == null)
-            {
-                throw new ArgumentNullException(nameof(createAuditEntryRequest));
-            }
+            ArgumentNullException.ThrowIfNull(inputParameters, nameof(inputParameters));
 
-            this.validator.ValidateAndThrow(createAuditEntryRequest);
-            var auditEntry = createAuditEntryRequest.ToDomainModel();
+            this.validator.ValidateAndThrow(inputParameters);
+            var auditEntry = inputParameters.ToDomainModel();
 
-            await this.dbContext.AuditEntries.AddAsync(auditEntry, cancellation);
-            await this.dbContext.SaveChangesAsync(cancellation);
+            await dbContext.AuditEntries.AddAsync(auditEntry, cancellation).ConfigureAwait(false);
+            await dbContext.SaveChangesAsync(cancellation).ConfigureAwait(false);
             return new AuditEntryDto(auditEntry);
         }
     }

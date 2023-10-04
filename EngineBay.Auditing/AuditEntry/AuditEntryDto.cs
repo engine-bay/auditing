@@ -1,6 +1,5 @@
 ﻿namespace EngineBay.Auditing;
 
-using EngineBay.Persistence;
 using System;
 
 public class AuditEntryDto

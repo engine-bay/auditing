@@ -1,6 +1,7 @@
 ﻿namespace EngineBay.Auditing
 {
     using EngineBay.Core;
+    using FluentValidation;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.Configuration;
@@ -10,19 +11,30 @@
     {
         public IServiceCollection RegisterModule(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddScoped<HttpContextWrapper>();
+            // Register commands
+            services.AddTransient<CreateAuditEntry>();
+
+            // Register queries
+            services.AddTransient<GetAuditEntry>();
+            services.AddTransient<QueryAuditEntries>();
+
+            // Register validators
+            services.AddTransient<IValidator<CreateAuditEntryRequest>, CreateAuditEntryValidator>();
+
+            services.AddTransient<DatabaseAuditingInterceptor>();
 
             return services;
         }
 
         public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
         {
-            throw new NotImplementedException();
+            AuditEntryEndpoints.MapEndpoints(endpoints);
+            return endpoints;
         }
 
         public WebApplication AddMiddleware(WebApplication app)
         {
-            throw new NotImplementedException();
+            return app;
         }
     }
 }

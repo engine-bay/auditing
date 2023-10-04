@@ -1,22 +1,26 @@
 ﻿namespace EngineBay.Auditing
 {
+    using EngineBay.Core;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Diagnostics;
     using Newtonsoft.Json;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class DatabaseAuditingInterceptor : SaveChangesInterceptor
     {
-        private readonly HttpContextWrapper httpContextWrapper;
+        private readonly ICurrentIdentity currentIdentity;
+        private readonly AuditingWriteDbContext auditingWriteDbContext;
         private readonly JsonSerializerSettings jsonSerializerSettings;
 
         private List<AuditEntry>? auditEntries;
 
-        public DatabaseAuditingInterceptor(HttpContextWrapper httpContextWrapper)
+        public DatabaseAuditingInterceptor(ICurrentIdentity currentIdentity, AuditingWriteDbContext auditingWriteDbContext)
         {
-            this.httpContextWrapper = httpContextWrapper;
+            this.currentIdentity = currentIdentity;
+            this.auditingWriteDbContext = auditingWriteDbContext;
             this.jsonSerializerSettings = new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
@@ -25,6 +29,8 @@
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
+            ArgumentNullException.ThrowIfNull(eventData, nameof(eventData));
+
             AuditChangesToEntity(eventData);
 
             return base.SavingChanges(eventData, result);
@@ -32,6 +38,8 @@
 
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(eventData, nameof(eventData));
+
             AuditChangesToEntity(eventData);
 
             return base.SavingChangesAsync(eventData, result, cancellationToken);
@@ -67,16 +75,24 @@
 
         public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
         {
-            SaveAuditChanges();
+            CollateAuditChanges();
+
+            auditingWriteDbContext.SaveChanges();
+
+            auditEntries = null;
 
             return base.SavedChanges(eventData, result);
         }
 
-        public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+        public async override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
-            SaveAuditChanges();
+            CollateAuditChanges();
 
-            return base.SavedChangesAsync(eventData, result, cancellationToken);
+            await auditingWriteDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            auditEntries = null;
+
+            return await base.SavedChangesAsync(eventData, result, cancellationToken).ConfigureAwait(false);
         }
 
 
@@ -85,12 +101,9 @@
         {
             var changeTrackerEntries = eventData.Context?.ChangeTracker.Entries();
 
-            if (changeTrackerEntries == null)
-            {
-                throw new ArgumentNullException(nameof(changeTrackerEntries));
-            }
+            ArgumentNullException.ThrowIfNull(changeTrackerEntries, nameof(changeTrackerEntries));
 
-            var entries = new List<AuditEntry>();
+            var auditEntries = new List<AuditEntry>();
 
             foreach (var entry in changeTrackerEntries)
             {
@@ -135,19 +148,18 @@
                     ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
                     EntityId = entityId.CurrentValue.ToString(),
                     EntityName = entry.Metadata.ClrType.Name,
-                    ApplicationUserId = httpContextWrapper.UserId,
-                    ApplicationUserName = httpContextWrapper.Username,
+                    ApplicationUserId = currentIdentity.UserId,
+                    ApplicationUserName = currentIdentity.Username,
                     TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
                     TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
                 };
 
-                entries.Add(auditEntry);
+                auditEntries.Add(auditEntry);
             }
 
-            auditEntries = entries;
         }
 
-        private void SaveAuditChanges()
+        private void CollateAuditChanges()
         {
             if (auditEntries != null && auditEntries.Count > 0)
             {
@@ -184,7 +196,10 @@
                 });
             }
 
-            auditEntries = null;
+            if (auditEntries != null && auditEntries.Count > 0)
+            {
+                auditingWriteDbContext.AddRange(auditEntries);
+            }
         }
     }
 }

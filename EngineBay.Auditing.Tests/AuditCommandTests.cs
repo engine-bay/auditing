@@ -1,6 +1,5 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
-    using EngineBay.Persistence;
     using FluentValidation;
     using Newtonsoft.Json;
     using Xunit;

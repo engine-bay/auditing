@@ -9,10 +9,13 @@ namespace EngineBay.Auditing
         {
         }
 
-        // TODO: Why are we overriding this?
+        public virtual DbSet<AuditEntry> AuditEntries { get; set; } = null!;
+
         /// <inheritdoc/>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            AuditEntry.CreateDataAnnotations(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
         }
     }

@@ -1,6 +1,4 @@
-﻿using EngineBay.Persistence;
-
-namespace EngineBay.Auditing
+﻿namespace EngineBay.Auditing
 {
     public class CreateAuditEntryRequest
     {

@@ -1,6 +1,5 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
-
     using EngineBay.Persistence;
 
     public class MockApplicationUser : ApplicationUser

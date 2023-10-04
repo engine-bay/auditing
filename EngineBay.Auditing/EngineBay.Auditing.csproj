@@ -1,12 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <RootNamespace>EngineBay.Auditing</RootNamespace>
+        <PackageId>EngineBay.Auditing</PackageId>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Auditing</RootNamespace>
+        <Authors>EngineBay</Authors>
+        <Company>EngineBay</Company>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageProjectUrl>https://github.com/engine-bay/auditing</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/engine-bay/auditing</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <TargetType>library</TargetType>
+        <IsPackable>true</IsPackable>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <IsTrimmable>false</IsTrimmable>
+    </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="EngineBay.Core" Version="5.4.7" />
       <PackageReference Include="EngineBay.Persistence" Version="3.4.1" />

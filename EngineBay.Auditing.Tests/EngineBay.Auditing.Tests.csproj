@@ -43,5 +43,9 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <None Remove="testdata\application-users.json" />
+	</ItemGroup>
 
 </Project>
