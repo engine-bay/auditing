@@ -1,6 +1,5 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
-    using System.Security.Claims;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
 
@@ -9,19 +8,15 @@
     {
         private bool isDisposed;
 
-        protected MockApplicationUser ApplicationUser { get; set; }
-
-        protected TContext DbContext { get; set; }
-
         protected BaseTestWithDbContext(string databaseName)
         {
-            var auditingDbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
-                .UseInMemoryDatabase(databaseName)
-                .EnableSensitiveDataLogging()
-                .Options;
+            var dbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
+                    .UseInMemoryDatabase(databaseName)
+                    .EnableSensitiveDataLogging()
+                    .Options;
 
-            var context = Activator.CreateInstance(typeof(TContext), auditingDbContextOptions) as TContext;
-            ArgumentNullException.ThrowIfNull(context, nameof(context));
+            var context = Activator.CreateInstance(typeof(TContext), dbContextOptions) as TContext;
+            ArgumentNullException.ThrowIfNull(context);
 
             this.DbContext = context;
             this.DbContext.Database.EnsureDeleted();
@@ -29,6 +24,10 @@
 
             this.ApplicationUser = new MockApplicationUser();
         }
+
+        protected MockApplicationUser ApplicationUser { get; set; }
+
+        protected TContext DbContext { get; set; }
 
         /// <inheritdoc/>
         // Dispose() calls Dispose(true)

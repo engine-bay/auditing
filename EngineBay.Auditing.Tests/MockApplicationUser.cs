@@ -6,7 +6,7 @@
     {
         public MockApplicationUser()
         {
-            var identifier = Guid.NewGuid();
+            var identifier = Guid.Parse("a06381d5-b12f-4033-bce2-203418e696d7");
             this.Id = identifier;
             this.Username = "User";
             this.CreatedById = default(Guid);

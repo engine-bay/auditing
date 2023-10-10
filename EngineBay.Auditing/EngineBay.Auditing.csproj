@@ -8,10 +8,10 @@
         <Authors>EngineBay</Authors>
         <Company>EngineBay</Company>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/engine-bay/auditing</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/engine-bay/auditing</RepositoryUrl>
+        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+        <!--<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>-->
+        <!--<PackageProjectUrl>https://github.com/engine-bay/auditing</PackageProjectUrl>-->
+        <!--<RepositoryUrl>https://github.com/engine-bay/auditing</RepositoryUrl>-->
         <RepositoryType>git</RepositoryType>
         <TargetType>library</TargetType>
         <IsPackable>true</IsPackable>
@@ -23,9 +23,7 @@
         <IsTrimmable>false</IsTrimmable>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="EngineBay.Core" Version="5.4.7" />
-      <PackageReference Include="EngineBay.Persistence" Version="3.4.1" />
-      <PackageReference Include="FluentValidation" Version="11.7.1" />
+        <PackageReference Include="FluentValidation" Version="11.7.1" />
     </ItemGroup>
 
 

@@ -44,7 +44,7 @@
                 Changes = changes,
             };
 
-            var dto = await command.Handle(auditEntry, this.ClaimsPrincipal, CancellationToken.None);
+            var dto = await command.Handle(auditEntry, CancellationToken.None);
 
             Assert.NotNull(dto);
             Assert.Equal(dto.ApplicationUserId, new Guid(applicationUserId));
@@ -73,7 +73,7 @@
                 Changes = changes,
             };
 
-            var dto = await command.Handle(createAuditEntryRequest, this.ClaimsPrincipal, CancellationToken.None);
+            var dto = await command.Handle(createAuditEntryRequest, CancellationToken.None);
 
             Assert.NotNull(dto);
             Assert.Equal(dto.ApplicationUserId, new Guid(applicationUserId));
@@ -85,7 +85,7 @@
 
             var query = new GetAuditEntry(this.DbContext);
 
-            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, dto.Id);
+            var getAuditEntryRequest = new GetAuditEntryRequest(dto.Id);
 
             var queryDto = await query.Handle(getAuditEntryRequest, CancellationToken.None);
 
@@ -117,7 +117,7 @@
                 Changes = changes,
             };
 
-            await Assert.ThrowsAsync<ValidationException>(async () => await command.Handle(auditEntry, this.ClaimsPrincipal, CancellationToken.None));
+            await Assert.ThrowsAsync<ValidationException>(async () => await command.Handle(auditEntry, CancellationToken.None));
         }
     }
 }

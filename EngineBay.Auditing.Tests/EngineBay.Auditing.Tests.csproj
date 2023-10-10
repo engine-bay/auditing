@@ -46,6 +46,7 @@
 	
 	<ItemGroup>
 	  <None Remove="testdata\application-users.json" />
+	  <None Remove="testdata\fake-models.json" />
 	</ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@
     using FluentValidation;
     using System.Security.Claims;
 
-    public class CreateAuditEntry : ICommandHandler<CreateAuditEntryRequest, AuditEntryDto>
+    public class CreateAuditEntry : IClaimlessCommandHandler<CreateAuditEntryRequest, AuditEntryDto>
     {
         private readonly AuditingWriteDbContext dbContext;
         private readonly IValidator<CreateAuditEntryRequest> validator;
@@ -15,7 +15,7 @@
             this.validator = validator;
         }
 
-        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest inputParameters, ClaimsPrincipal user, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest inputParameters, CancellationToken cancellation)
         {
             ArgumentNullException.ThrowIfNull(inputParameters, nameof(inputParameters));
 

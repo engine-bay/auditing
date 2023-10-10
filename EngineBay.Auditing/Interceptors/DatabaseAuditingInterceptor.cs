@@ -29,7 +29,7 @@
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
-            ArgumentNullException.ThrowIfNull(eventData, nameof(eventData));
+            ArgumentNullException.ThrowIfNull(eventData);
 
             AuditChangesToEntity(eventData);
 
@@ -38,7 +38,7 @@
 
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(eventData, nameof(eventData));
+            ArgumentNullException.ThrowIfNull(eventData);
 
             AuditChangesToEntity(eventData);
 
@@ -101,9 +101,9 @@
         {
             var changeTrackerEntries = eventData.Context?.ChangeTracker.Entries();
 
-            ArgumentNullException.ThrowIfNull(changeTrackerEntries, nameof(changeTrackerEntries));
+            ArgumentNullException.ThrowIfNull(changeTrackerEntries);
 
-            var auditEntries = new List<AuditEntry>();
+            auditEntries = new List<AuditEntry>();
 
             foreach (var entry in changeTrackerEntries)
             {

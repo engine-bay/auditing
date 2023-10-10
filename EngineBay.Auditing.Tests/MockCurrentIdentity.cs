@@ -6,18 +6,18 @@
     {
         public MockCurrentIdentity()
         {
-            this.Username = "MockUser";
             this.UserId = Guid.NewGuid();
+            this.Username = "MockUser";
         }
 
-        public string? Username { get; }
-
-        public MockCurrentIdentity(string? username, Guid userId)
+        public MockCurrentIdentity(Guid userId, string? username)
         {
-            this.Username = username;
             this.UserId = userId;
+            this.Username = username;
         }
 
         public Guid UserId { get; }
+
+        public string? Username { get; }
     }
 }
