@@ -13,8 +13,6 @@
 
         protected TContext DbContext { get; set; }
 
-        protected ClaimsPrincipal ClaimsPrincipal { get; set; }
-
         protected BaseTestWithDbContext(string databaseName)
         {
             var auditingDbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
@@ -30,14 +28,6 @@
             this.DbContext.Database.EnsureCreated();
 
             this.ApplicationUser = new MockApplicationUser();
-
-            var claims = new List<Claim>()
-            {
-                new Claim(System.Security.Claims.ClaimTypes.NameIdentifier, this.ApplicationUser.Id.ToString() ?? "tests"),
-            };
-
-            var identity = new ClaimsIdentity(claims, "TestAuthType");
-            this.ClaimsPrincipal = new ClaimsPrincipal(identity);
         }
 
         /// <inheritdoc/>

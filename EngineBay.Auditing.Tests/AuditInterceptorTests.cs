@@ -51,5 +51,76 @@
 
             // interceptor.SavingChanges(eventData, result);
         }
+
+//        [Fact]
+//        public async void CreatedAnAuditEntry()
+//        {
+//            if (this.auditedDbContext is null)
+//            {
+//                throw new ArgumentException();
+//            }
+//
+//            if (this.mockEntity is null)
+//            {
+//                throw new ArgumentException();
+//            }
+//
+//            var applicationUser = new MockApplicationUser();
+//
+//            this.auditedDbContext.MockEntities.Add(this.mockEntity);
+//
+//            await this.auditedDbContext.SaveChangesAsync(applicationUser).ConfigureAwait(false);
+//
+//            var auditEntry = this.auditedDbContext.AuditEntries.First();
+//
+//            Assert.NotNull(auditEntry);
+//        }
+//
+//        [Fact]
+//        public async void AuditsASeriesofChanges()
+//        {
+//            if (this.auditedDbContext is null)
+//            {
+//                throw new ArgumentException();
+//            }
+//
+//            if (this.mockEntity is null)
+//            {
+//                throw new ArgumentException();
+//            }
+//
+//            var applicationUser = new MockApplicationUser();
+//
+//            this.auditedDbContext.MockEntities.Add(this.mockEntity);
+//
+//            await this.auditedDbContext.SaveChangesAsync(applicationUser).ConfigureAwait(false);
+//
+//            var savedMockEntity = this.auditedDbContext.MockEntities.First();
+//
+//            savedMockEntity.Name = "Bye world!";
+//
+//            await this.auditedDbContext.SaveChangesAsync(applicationUser).ConfigureAwait(false);
+//
+//            this.auditedDbContext.MockEntities.Remove(savedMockEntity);
+//
+//            await this.auditedDbContext.SaveChangesAsync(applicationUser).ConfigureAwait(false);
+//
+//            var auditEntries = this.auditedDbContext.AuditEntries.
+//                Where(x => x.EntityId == savedMockEntity.Id.ToString())
+//                .OrderBy(x => x.CreatedAt)
+//                .ToList();
+//
+//            // we expect there to be three auditing entries
+//            Assert.Equal(3, auditEntries.Count);
+//
+//            var firstEntry = auditEntries[0];
+//            var secondEntry = auditEntries[1];
+//            var thirdEntry = auditEntries[2];
+//
+//            // with the following sequence of operations
+//            Assert.Equal(DatabaseOperationConstants.INSERT, firstEntry.ActionType);
+//            Assert.Equal(DatabaseOperationConstants.UPDATE, secondEntry.ActionType);
+//            Assert.Equal(DatabaseOperationConstants.DELETE, thirdEntry.ActionType);
+//        }
     }
 }

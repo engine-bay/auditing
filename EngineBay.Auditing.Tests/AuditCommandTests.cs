@@ -9,7 +9,7 @@
         private readonly IValidator<CreateAuditEntryRequest> validator;
 
         public AuditCommandTests()
-                : base(nameof(AuditCommandTests))
+            : base(nameof(AuditCommandTests))
         {
             this.validator = new CreateAuditEntryValidator();
 

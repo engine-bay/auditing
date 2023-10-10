@@ -1,6 +1,7 @@
-﻿namespace EngineBay.Auditing
-{
+﻿using System.Globalization;
 
+namespace EngineBay.Auditing
+{
     using EngineBay.Core;
     using LinqKit;
     using Microsoft.EntityFrameworkCore;
@@ -28,11 +29,12 @@
             var skip = limit > 0 ? queryParameters.PaginationParameters.Skip : 0;
 
             var total = await query.CountAsync(cancellation).ConfigureAwait(false);
+            var format = new DateTimeFormatInfo();
 
             Expression<Func<AuditEntry, string?>> sortByPredicate = queryParameters.PaginationParameters.SortBy switch
             {
-                nameof(AuditEntry.CreatedAt) => auditEntry => auditEntry.CreatedAt.ToString(),
-                nameof(AuditEntry.LastUpdatedAt) => auditEntry => auditEntry.LastUpdatedAt.ToString(),
+                nameof(AuditEntry.CreatedAt) => auditEntry => auditEntry.CreatedAt.ToString(format),
+                nameof(AuditEntry.LastUpdatedAt) => auditEntry => auditEntry.LastUpdatedAt.ToString(format),
                 nameof(AuditEntry.ActionType) => auditEntry => auditEntry.ActionType,
                 nameof(AuditEntry.ApplicationUserId) => auditEntry => auditEntry.ApplicationUserId.ToString(),
                 nameof(AuditEntry.ApplicationUserName) => auditEntry => auditEntry.ApplicationUserName,

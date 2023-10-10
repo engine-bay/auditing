@@ -7,7 +7,7 @@
     public class AuditQueryTests : BaseTestWithDbContext<AuditingDbContext>
     {
         public AuditQueryTests()
-          : base(nameof(AuditQueryTests))
+            : base(nameof(AuditQueryTests))
         {
             var path = Path.GetFullPath(@"./TestData/audit-entries.json");
             var auditEntries = JsonConvert.DeserializeObject<List<AuditEntry>>(File.ReadAllText(path));
@@ -24,7 +24,7 @@
         public async Task AuditEntryCanBeReturnedByGuid()
         {
             var query = new GetAuditEntry(this.DbContext);
-            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("4c334609-b5c8-4652-8f4b-8cc9ca604392"));
+            var getAuditEntryRequest = new GetAuditEntryRequest(Guid.Parse("4c334609-b5c8-4652-8f4b-8cc9ca604392"));
 
             var dto = await query.Handle(getAuditEntryRequest, CancellationToken.None);
 
@@ -35,10 +35,10 @@
         public async Task GettingAuditEntryThatDoesNotExistThrowsAnException()
         {
             var query = new GetAuditEntry(this.DbContext);
-            var getAuditEntryRequest = new GetAuditEntryRequest(this.ClaimsPrincipal, Guid.Parse("f8bd38e4-0778-4dc9-b092-09f590dfabf3"));
+            var getAuditEntryRequest = new GetAuditEntryRequest(Guid.Parse("f8bd38e4-0778-4dc9-b092-09f590dfabf3"));
 
             await Assert.ThrowsAsync<NotFoundException>(async () =>
-              await query.Handle(getAuditEntryRequest, CancellationToken.None));
+                await query.Handle(getAuditEntryRequest, CancellationToken.None));
         }
 
         [Fact]
@@ -46,7 +46,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
 
@@ -58,7 +58,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -75,7 +75,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -92,7 +92,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -113,7 +113,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -135,7 +135,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -153,7 +153,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {
@@ -170,7 +170,7 @@
         {
             var query = new QueryAuditEntries(this.DbContext);
 
-            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(this.ClaimsPrincipal, new PaginationParameters());
+            var queryAuditEntriesRequest = new QueryAuditEntriesRequest(new PaginationParameters());
 
             queryAuditEntriesRequest.PaginationParameters = new PaginationParameters
             {

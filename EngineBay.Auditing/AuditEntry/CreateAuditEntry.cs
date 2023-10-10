@@ -1,14 +1,11 @@
-﻿
-namespace EngineBay.Auditing
+﻿namespace EngineBay.Auditing
 {
-
     using EngineBay.Core;
     using FluentValidation;
     using System.Security.Claims;
 
     public class CreateAuditEntry : ICommandHandler<CreateAuditEntryRequest, AuditEntryDto>
     {
-
         private readonly AuditingWriteDbContext dbContext;
         private readonly IValidator<CreateAuditEntryRequest> validator;
 
@@ -22,7 +19,7 @@ namespace EngineBay.Auditing
         {
             ArgumentNullException.ThrowIfNull(inputParameters, nameof(inputParameters));
 
-            this.validator.ValidateAndThrow(inputParameters);
+            await this.validator.ValidateAndThrowAsync(inputParameters, cancellation).ConfigureAwait(false);
             var auditEntry = inputParameters.ToDomainModel();
 
             await dbContext.AuditEntries.AddAsync(auditEntry, cancellation).ConfigureAwait(false);
