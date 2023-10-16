@@ -47,7 +47,7 @@
         [InlineData("6b29309a-f273-43f0-ad31-b88060e6d684", "one", "two")]
         [InlineData("b54636a8-26ba-4b09-bd4e-50bcffa50a1b", "three", "four")]
         [InlineData("b9d2a805-64cf-4719-ab83-568fca9dc820", "five", "six")]
-        public void WillAuditChangesOnSave(string id, string name, string description)
+        public void AuditChangesOnSave(string id, string name, string description)
         {
             this.ResetDbs();
 
@@ -63,6 +63,7 @@
 
             var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == id.ToString());
             Assert.NotNull(audit);
+            Assert.Equal("INSERT", audit.ActionType);
             Assert.Contains(name, audit.Changes);
             Assert.Contains(description, audit.Changes);
         }
@@ -71,17 +72,17 @@
         [InlineData("b9274cd3-c673-4656-b5d3-d8b20df41ad4")]
         [InlineData("7710a98b-a15e-4ba2-9a5e-8aba30a29033")]
         [InlineData("0407c397-af0a-475b-92a2-87570c6e6d02")]
-        public void WillAuditChangesOnUpdate(string id)
+        public void AuditChangesOnUpdate(string id)
         {
             this.ResetDbs();
 
             var idToTest = Guid.Parse(id);
-            var modelToupdate = this.FakeDbContext.FakeModels.Find(idToTest);
+            var modelToUpdate = this.FakeDbContext.FakeModels.Find(idToTest);
 
-            Assert.NotNull(modelToupdate);
+            Assert.NotNull(modelToUpdate);
 
-            var newDescription = modelToupdate.Description + " - updated";
-            modelToupdate.Description = newDescription;
+            var newDescription = modelToUpdate.Description + " - updated";
+            modelToUpdate.Description = newDescription;
 
             this.FakeDbContext.SaveChanges();
 
@@ -89,8 +90,33 @@
             var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
 
             Assert.Equal(1, numberOfAudits);
+            Assert.Equal("UPDATE", audit.ActionType);
             Assert.NotNull(audit);
             Assert.Contains(newDescription, audit.Changes);
+        }
+
+        [Theory]
+        [InlineData("b9274cd3-c673-4656-b5d3-d8b20df41ad4")]
+        [InlineData("7710a98b-a15e-4ba2-9a5e-8aba30a29033")]
+        [InlineData("0407c397-af0a-475b-92a2-87570c6e6d02")]
+        public void AuditChangesOnDelete(string id)
+        {
+            this.ResetDbs();
+
+            var idToTest = Guid.Parse(id);
+            var modelToDelete = this.FakeDbContext.FakeModels.Find(idToTest);
+
+            Assert.NotNull(modelToDelete);
+
+            this.FakeDbContext.FakeModels.Remove(modelToDelete);
+            this.FakeDbContext.SaveChanges();
+
+            var numberOfAudits = this.DbContext.AuditEntries.Count();
+            var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
+
+            Assert.Equal(1, numberOfAudits);
+            Assert.Equal("DELETE", audit.ActionType);
+            Assert.NotNull(audit);
         }
 
         private void ResetDbs()
