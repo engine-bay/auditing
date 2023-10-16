@@ -2,16 +2,16 @@
   {
     "Id": "b9274cd3-c673-4656-b5d3-d8b20df41ad4",
     "Name": "Alpha",
-    "Description": "For update test"
+    "Description": "For something"
   },
   {
     "Id": "7710a98b-a15e-4ba2-9a5e-8aba30a29033",
     "Name": "Beta",
-    "Description": "For delete test"
+    "Description": "For somewhere"
   },
   {
     "Id": "0407c397-af0a-475b-92a2-87570c6e6d02",
     "Name": "Gamma",
-    "Description": "For something"
+    "Description": "For someone"
   }
 ]
