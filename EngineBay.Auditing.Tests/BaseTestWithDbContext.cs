@@ -21,11 +21,7 @@
             this.DbContext = context;
             this.DbContext.Database.EnsureDeleted();
             this.DbContext.Database.EnsureCreated();
-
-            this.ApplicationUser = new MockApplicationUser();
         }
-
-        protected MockApplicationUser ApplicationUser { get; set; }
 
         protected TContext DbContext { get; set; }
 

@@ -16,13 +16,10 @@
             var path = Path.GetFullPath(@"./TestData/audit-entries.json");
             List<AuditEntry>? auditEntries = JsonConvert.DeserializeObject<List<AuditEntry>>(File.ReadAllText(path));
             var auditEntriesCount = this.DbContext.AuditEntries.Count();
-            if (auditEntries is not null)
+            if (auditEntries is not null && auditEntriesCount == 0)
             {
-                if (auditEntriesCount == 0)
-                {
-                    this.DbContext.AddRange(auditEntries);
-                    this.DbContext.SaveChanges(this.ApplicationUser);
-                }
+                this.DbContext.AddRange(auditEntries);
+                this.DbContext.SaveChanges();
             }
         }
 

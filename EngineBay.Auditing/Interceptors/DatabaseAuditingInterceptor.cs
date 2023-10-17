@@ -2,6 +2,7 @@
 {
     using EngineBay.Core;
     using EngineBay.Persistence;
+    using LinqKit;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Diagnostics;
     using Newtonsoft.Json;
@@ -31,6 +32,8 @@
         {
             ArgumentNullException.ThrowIfNull(eventData);
 
+            SetAuditedTimestamps(eventData);
+
             AuditChangesToEntity(eventData);
 
             return base.SavingChanges(eventData, result);
@@ -39,6 +42,8 @@
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(eventData);
+
+            SetAuditedTimestamps(eventData);
 
             AuditChangesToEntity(eventData);
 
@@ -95,7 +100,28 @@
             return await base.SavedChangesAsync(eventData, result, cancellationToken).ConfigureAwait(false);
         }
 
+        private void SetAuditedTimestamps(DbContextEventData eventData)
+        {
+            ArgumentNullException.ThrowIfNull(eventData.Context);
 
+            var entries = eventData.Context.ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is AuditableModel && (
+                    e.State == EntityState.Added
+                    || e.State == EntityState.Modified));
+
+            Parallel.ForEach(entries, entityEntry =>
+            {
+                ((AuditableModel)entityEntry.Entity).LastUpdatedAt = DateTime.UtcNow;
+                ((AuditableModel)entityEntry.Entity).LastUpdatedById = currentIdentity.UserId;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    ((AuditableModel)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
+                    ((AuditableModel)entityEntry.Entity).CreatedById = currentIdentity.UserId;
+                }
+            });
+        }
 
         private void AuditChangesToEntity(DbContextEventData eventData)
         {
@@ -138,11 +164,6 @@
 
                 var changes = entry.Properties.Select(p => new { p.Metadata.Name, p.CurrentValue });
 
-                if (changes is null)
-                {
-                    throw new ArgumentException("Auditing change tracker entry changes were null");
-                }
-
                 var auditEntry = new AuditEntry
                 {
                     ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
@@ -175,7 +196,7 @@
                         throw new ArgumentException("Auditing temporary changes collection was null");
                     }
 
-                    foreach (var prop in entry.TempProperties)
+                    entry.TempProperties.ForEach(prop =>
                     {
                         if (prop.CurrentValue is not null)
                         {
@@ -190,7 +211,7 @@
                                 entry.TempChanges[prop.Metadata.Name] = currentValue;
                             }
                         }
-                    }
+                    });
 
                     entry.Changes = JsonConvert.SerializeObject(entry.TempChanges, this.jsonSerializerSettings);
                 });

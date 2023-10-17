@@ -17,7 +17,7 @@
             }
 
             this.DbContext.AddRange(auditEntries);
-            this.DbContext.SaveChanges(this.ApplicationUser);
+            this.DbContext.SaveChanges();
         }
 
         [Fact]

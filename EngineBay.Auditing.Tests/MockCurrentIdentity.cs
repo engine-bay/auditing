@@ -6,14 +6,8 @@
     {
         public MockCurrentIdentity()
         {
-            this.UserId = Guid.NewGuid();
+            this.UserId = Guid.Parse("a06381d5-b12f-4033-bce2-203418e696d7");
             this.Username = "MockUser";
-        }
-
-        public MockCurrentIdentity(Guid userId, string? username)
-        {
-            this.UserId = userId;
-            this.Username = username;
         }
 
         public Guid UserId { get; }
