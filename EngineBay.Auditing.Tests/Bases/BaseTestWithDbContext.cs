@@ -3,7 +3,7 @@
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
 
-    public class BaseTestWithDbContext<TContext>
+    public class BaseTestWithDbContext<TContext> : IDisposable
         where TContext : ModuleDbContext
     {
         private bool isDisposed;

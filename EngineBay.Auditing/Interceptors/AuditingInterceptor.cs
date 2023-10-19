@@ -10,7 +10,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class DatabaseAuditingInterceptor : SaveChangesInterceptor
+    public class AuditingInterceptor : SaveChangesInterceptor, IAuditingInterceptor
     {
         private readonly ICurrentIdentity currentIdentity;
         private readonly AuditingWriteDbContext auditingWriteDbContext;
@@ -18,7 +18,7 @@
 
         private List<AuditEntry>? auditEntries;
 
-        public DatabaseAuditingInterceptor(ICurrentIdentity currentIdentity, AuditingWriteDbContext auditingWriteDbContext)
+        public AuditingInterceptor(ICurrentIdentity currentIdentity, AuditingWriteDbContext auditingWriteDbContext)
         {
             this.currentIdentity = currentIdentity;
             this.auditingWriteDbContext = auditingWriteDbContext;
@@ -32,8 +32,6 @@
         {
             ArgumentNullException.ThrowIfNull(eventData);
 
-            SetAuditedTimestamps(eventData);
-
             AuditChangesToEntity(eventData);
 
             return base.SavingChanges(eventData, result);
@@ -42,8 +40,6 @@
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(eventData);
-
-            SetAuditedTimestamps(eventData);
 
             AuditChangesToEntity(eventData);
 
@@ -98,29 +94,6 @@
             auditEntries = null;
 
             return await base.SavedChangesAsync(eventData, result, cancellationToken).ConfigureAwait(false);
-        }
-
-        private void SetAuditedTimestamps(DbContextEventData eventData)
-        {
-            ArgumentNullException.ThrowIfNull(eventData.Context);
-
-            var entries = eventData.Context.ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is AuditableModel && (
-                    e.State == EntityState.Added
-                    || e.State == EntityState.Modified));
-
-            Parallel.ForEach(entries, entityEntry =>
-            {
-                ((AuditableModel)entityEntry.Entity).LastUpdatedAt = DateTime.UtcNow;
-                ((AuditableModel)entityEntry.Entity).LastUpdatedById = currentIdentity.UserId;
-
-                if (entityEntry.State == EntityState.Added)
-                {
-                    ((AuditableModel)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
-                    ((AuditableModel)entityEntry.Entity).CreatedById = currentIdentity.UserId;
-                }
-            });
         }
 
         private void AuditChangesToEntity(DbContextEventData eventData)

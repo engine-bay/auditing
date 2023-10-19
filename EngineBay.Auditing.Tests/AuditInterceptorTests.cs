@@ -2,11 +2,10 @@
 {
     using EngineBay.Auditing.Tests.FakeAuditableModel;
     using EngineBay.Persistence;
-    using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
     using Xunit;
 
-    public class AuditInterceptorTests : BaseTestWithDbContext<AuditingWriteDbContext>
+    public class AuditInterceptorTests : BaseTestWithFullAuditedDb<FakeDbContext>
     {
         private readonly List<FakeModel> fakeModels;
         private readonly List<ApplicationUser> applicationUsers;
@@ -14,21 +13,6 @@
         public AuditInterceptorTests()
             : base(nameof(AuditInterceptorTests))
         {
-            var dbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
-                    .UseInMemoryDatabase(nameof(AuditInterceptorTests))
-                    .EnableSensitiveDataLogging()
-                    .Options;
-
-            var currentIdentity = new MockCurrentIdentity();
-            var interceptor = new DatabaseAuditingInterceptor(currentIdentity, this.DbContext);
-
-            var context = new FakeDbContext(dbContextOptions, interceptor);
-            ArgumentNullException.ThrowIfNull(context);
-
-            this.FakeDbContext = context;
-            this.FakeDbContext.Database.EnsureDeleted();
-            this.FakeDbContext.Database.EnsureCreated();
-
             var applicationUsersPath = Path.GetFullPath(@"./TestData/application-users.json");
 
             var tempApplicationUsers = JsonConvert.DeserializeObject<List<ApplicationUser>>(File.ReadAllText(applicationUsersPath));
@@ -40,8 +24,6 @@
             ArgumentNullException.ThrowIfNull(tempFakeModels);
             this.fakeModels = tempFakeModels;
         }
-
-        protected FakeDbContext FakeDbContext { get; set; }
 
         [Theory]
         [InlineData("6b29309a-f273-43f0-ad31-b88060e6d684", "one", "two")]
@@ -58,10 +40,10 @@
                 Description = description,
             };
 
-            this.FakeDbContext.Add(modelToSave);
-            this.FakeDbContext.SaveChanges();
+            this.DbContext.Add(modelToSave);
+            this.DbContext.SaveChanges();
 
-            var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == id.ToString());
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == id.ToString());
             Assert.NotNull(audit);
             Assert.Equal("INSERT", audit.ActionType);
             Assert.Contains(name, audit.Changes);
@@ -77,17 +59,17 @@
             this.ResetDbs();
 
             var idToTest = Guid.Parse(id);
-            var modelToUpdate = this.FakeDbContext.FakeModels.Find(idToTest);
+            var modelToUpdate = this.DbContext.FakeModels.Find(idToTest);
 
             Assert.NotNull(modelToUpdate);
 
             var newDescription = modelToUpdate.Description + " - updated";
             modelToUpdate.Description = newDescription;
 
-            this.FakeDbContext.SaveChanges();
+            this.DbContext.SaveChanges();
 
-            var numberOfAudits = this.DbContext.AuditEntries.Count();
-            var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
+            var numberOfAudits = this.AuditDbContext.AuditEntries.Count();
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
 
             Assert.Equal(1, numberOfAudits);
             Assert.Equal("UPDATE", audit.ActionType);
@@ -104,15 +86,15 @@
             this.ResetDbs();
 
             var idToTest = Guid.Parse(id);
-            var modelToDelete = this.FakeDbContext.FakeModels.Find(idToTest);
+            var modelToDelete = this.DbContext.FakeModels.Find(idToTest);
 
             Assert.NotNull(modelToDelete);
 
-            this.FakeDbContext.FakeModels.Remove(modelToDelete);
-            this.FakeDbContext.SaveChanges();
+            this.DbContext.FakeModels.Remove(modelToDelete);
+            this.DbContext.SaveChanges();
 
-            var numberOfAudits = this.DbContext.AuditEntries.Count();
-            var audit = this.DbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
+            var numberOfAudits = this.AuditDbContext.AuditEntries.Count();
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
 
             Assert.Equal(1, numberOfAudits);
             Assert.Equal("DELETE", audit.ActionType);
@@ -121,75 +103,14 @@
 
         private void ResetDbs()
         {
-            this.FakeDbContext.AddRange(this.applicationUsers);
-            this.FakeDbContext.SaveChanges();
-            this.FakeDbContext.AddRange(this.fakeModels);
-            this.FakeDbContext.SaveChanges();
-
-            this.DbContext.AuditEntries.RemoveRange(this.DbContext.AuditEntries);
+            this.DbContext.RemoveRange(this.DbContext.ApplicationUsers);
+            this.DbContext.AddRange(this.applicationUsers);
             this.DbContext.SaveChanges();
+            this.DbContext.RemoveRange(this.DbContext.FakeModels);
+            this.DbContext.AddRange(this.fakeModels);
+            this.DbContext.SaveChanges();
+
+            this.ResetAuditEntries();
         }
-
-        // [Fact]
-        // public async Task SetsTheCreatedDate()
-        // {
-        //    ArgumentNullException.ThrowIfNull(this.auditedDbContext);
-        //    ArgumentNullException.ThrowIfNull(this.mockEntity);
-
-        // this.auditedDbContext.MockEntities.Add(this.mockEntity);
-
-        // await this.auditedDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        // var savedMockEntity = this.auditedDbContext.MockEntities.First();
-
-        // Assert.True(savedMockEntity.CreatedAt.Ticks > this.now.Ticks);
-        // }
-
-        // [Fact]
-        // public async Task SetsTheLastModifiedDate()
-        // {
-        //    ArgumentNullException.ThrowIfNull(this.auditedDbContext);
-        //    ArgumentNullException.ThrowIfNull(this.mockEntity);
-
-        // this.auditedDbContext.MockEntities.Add(this.mockEntity);
-
-        // await this.auditedDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        // var savedMockEntity = this.auditedDbContext.MockEntities.First();
-
-        // Assert.True(savedMockEntity.LastUpdatedAt.Ticks > this.now.Ticks);
-        // }
-
-        // [Fact]
-        // public async Task SetsTheLastModifiedByUserIdDate()
-        // {
-        //    ArgumentNullException.ThrowIfNull(this.auditedDbContext);
-        //    ArgumentNullException.ThrowIfNull(this.mockEntity);
-
-        // this.auditedDbContext.MockEntities.Add(this.mockEntity);
-
-        // await this.auditedDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        // var savedMockEntity = this.auditedDbContext.MockEntities.First();
-
-        // Assert.NotNull(savedMockEntity.LastUpdatedById);
-        // }
-
-        // [Fact]
-        // public async Task SetsTheCreatedByUserIdDate()
-        // {
-        //    ArgumentNullException.ThrowIfNull(this.auditedDbContext);
-        //    ArgumentNullException.ThrowIfNull(this.mockEntity);
-
-        // var applicationUser = new MockApplicationUser();
-
-        // this.auditedDbContext.MockEntities.Add(this.mockEntity);
-
-        // await this.auditedDbContext.SaveChangesAsync().ConfigureAwait(false);
-
-        // var savedMockEntity = this.auditedDbContext.MockEntities.First();
-
-        // Assert.True(savedMockEntity.CreatedById == applicationUser.Id);
-        // }
     }
 }

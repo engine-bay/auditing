@@ -5,9 +5,9 @@
 
     public class FakeDbContext : ModuleWriteDbContext
     {
-        private readonly DatabaseAuditingInterceptor databaseAuditingInterceptor;
+        private readonly IAuditingInterceptor databaseAuditingInterceptor;
 
-        public FakeDbContext(DbContextOptions<ModuleWriteDbContext> options, DatabaseAuditingInterceptor databaseAuditingInterceptor)
+        public FakeDbContext(DbContextOptions<ModuleWriteDbContext> options, IAuditingInterceptor databaseAuditingInterceptor)
             : base(options)
         {
             this.databaseAuditingInterceptor = databaseAuditingInterceptor;

@@ -21,7 +21,7 @@
             // Register validators
             services.AddTransient<IValidator<CreateAuditEntryRequest>, CreateAuditEntryValidator>();
 
-            services.AddTransient<DatabaseAuditingInterceptor>();
+            services.AddTransient<AuditingInterceptor>();
 
             return services;
         }
