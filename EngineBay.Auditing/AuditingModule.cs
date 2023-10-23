@@ -6,6 +6,7 @@
     using Microsoft.AspNetCore.Routing;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using System;
 
     public class AuditingModule : IModule
     {
@@ -26,7 +27,7 @@
             return services;
         }
 
-        public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
+        public RouteGroupBuilder MapEndpoints(RouteGroupBuilder endpoints)
         {
             AuditEntryEndpoints.MapEndpoints(endpoints);
             return endpoints;
@@ -35,6 +36,16 @@
         public WebApplication AddMiddleware(WebApplication app)
         {
             return app;
+        }
+
+        public IServiceCollection RegisterPolicies(IServiceCollection services)
+        {
+            return services;
+        }
+
+        public void SeedDatabase(string seedDataPath, IServiceProvider serviceProvider)
+        {
+            return;
         }
     }
 }

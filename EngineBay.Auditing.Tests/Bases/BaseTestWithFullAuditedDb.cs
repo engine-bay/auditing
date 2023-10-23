@@ -1,7 +1,6 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
     using System;
-    using EngineBay.Authentication;
     using EngineBay.Core;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
@@ -19,8 +18,8 @@
                     .EnableSensitiveDataLogging()
                     .Options;
 
-            this.currentIdentity = new SystemUserIdentity();
-            var interceptor = new AuditingInterceptor(currentIdentity, this.AuditDbContext);
+            this.currentIdentity = new FakeUserIdentity();
+            var interceptor = new AuditingInterceptor(this.currentIdentity, this.AuditDbContext);
 
             var context = Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) as TContext;
             ArgumentNullException.ThrowIfNull(context);
