@@ -1,6 +1,8 @@
 ﻿namespace EngineBay.Auditing.Tests
 {
     using System;
+    using EngineBay.Authentication;
+    using EngineBay.Core;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
 
@@ -17,8 +19,8 @@
                     .EnableSensitiveDataLogging()
                     .Options;
 
-            var currentIdentity = new SystemUserIdentity();
-            var interceptor = new FullAuditingInterceptor(currentIdentity, this.AuditDbContext);
+            this.currentIdentity = new SystemUserIdentity();
+            var interceptor = new AuditingInterceptor(currentIdentity, this.AuditDbContext);
 
             var context = Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) as TContext;
             ArgumentNullException.ThrowIfNull(context);
@@ -31,6 +33,8 @@
         protected new TContext DbContext { get; set; }
 
         protected AuditingWriteDbContext AuditDbContext { get; set; }
+
+        protected ICurrentIdentity currentIdentity { get; set; }
 
         protected void ResetAuditEntries()
         {

@@ -23,19 +23,25 @@
             var tempFakeModels = JsonConvert.DeserializeObject<List<FakeModel>>(File.ReadAllText(fakeModelPath));
             ArgumentNullException.ThrowIfNull(tempFakeModels);
             this.fakeModels = tempFakeModels;
+
+            this.DbContext.RemoveRange(this.DbContext.ApplicationUsers);
+            this.DbContext.AddRange(this.applicationUsers);
+            this.DbContext.SaveChanges();
+            this.DbContext.RemoveRange(this.DbContext.FakeModels);
+            this.DbContext.AddRange(this.fakeModels);
+            this.DbContext.SaveChanges();
+
+            this.ResetAuditEntries();
         }
 
         [Theory]
-        [InlineData("6b29309a-f273-43f0-ad31-b88060e6d684", "one", "two")]
-        [InlineData("b54636a8-26ba-4b09-bd4e-50bcffa50a1b", "three", "four")]
-        [InlineData("b9d2a805-64cf-4719-ab83-568fca9dc820", "five", "six")]
-        public void AuditChangesOnSave(string id, string name, string description)
+        [InlineData("one", "two")]
+        [InlineData("three", "four")]
+        [InlineData("five", "six")]
+        public void AuditChangesOnCreate(string name, string description)
         {
-            this.ResetDbs();
-
             var modelToSave = new FakeModel
             {
-                Id = Guid.Parse(id),
                 Name = name,
                 Description = description,
             };
@@ -43,11 +49,11 @@
             this.DbContext.Add(modelToSave);
             this.DbContext.SaveChanges();
 
-            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == id.ToString());
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == modelToSave.Id.ToString() && x.ActionType == "INSERT");
             Assert.NotNull(audit);
-            Assert.Equal("INSERT", audit.ActionType);
             Assert.Contains(name, audit.Changes);
             Assert.Contains(description, audit.Changes);
+            Assert.Equal(this.currentIdentity.UserId, modelToSave.CreatedById);
         }
 
         [Theory]
@@ -56,8 +62,6 @@
         [InlineData("0407c397-af0a-475b-92a2-87570c6e6d02")]
         public void AuditChangesOnUpdate(string id)
         {
-            this.ResetDbs();
-
             var idToTest = Guid.Parse(id);
             var modelToUpdate = this.DbContext.FakeModels.Find(idToTest);
 
@@ -69,12 +73,12 @@
             this.DbContext.SaveChanges();
 
             var numberOfAudits = this.AuditDbContext.AuditEntries.Count();
-            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString() && x.ActionType == "UPDATE");
 
             Assert.Equal(1, numberOfAudits);
-            Assert.Equal("UPDATE", audit.ActionType);
             Assert.NotNull(audit);
             Assert.Contains(newDescription, audit.Changes);
+            Assert.Equal(this.currentIdentity.UserId, modelToUpdate.LastUpdatedById);
         }
 
         [Theory]
@@ -83,8 +87,6 @@
         [InlineData("0407c397-af0a-475b-92a2-87570c6e6d02")]
         public void AuditChangesOnDelete(string id)
         {
-            this.ResetDbs();
-
             var idToTest = Guid.Parse(id);
             var modelToDelete = this.DbContext.FakeModels.Find(idToTest);
 
@@ -94,23 +96,10 @@
             this.DbContext.SaveChanges();
 
             var numberOfAudits = this.AuditDbContext.AuditEntries.Count();
-            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString());
+            var audit = this.AuditDbContext.AuditEntries.Single(x => x.EntityId == idToTest.ToString() && x.ActionType == "DELETE");
 
             Assert.Equal(1, numberOfAudits);
-            Assert.Equal("DELETE", audit.ActionType);
             Assert.NotNull(audit);
-        }
-
-        private void ResetDbs()
-        {
-            this.DbContext.RemoveRange(this.DbContext.ApplicationUsers);
-            this.DbContext.AddRange(this.applicationUsers);
-            this.DbContext.SaveChanges();
-            this.DbContext.RemoveRange(this.DbContext.FakeModels);
-            this.DbContext.AddRange(this.fakeModels);
-            this.DbContext.SaveChanges();
-
-            this.ResetAuditEntries();
         }
     }
 }

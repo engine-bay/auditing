@@ -107,50 +107,47 @@
             foreach (var entry in changeTrackerEntries)
             {
                 // Do not audit entities that are not tracked, not changed, or not of type AuditableModel
-                if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged || entry.Entity is not AuditableModel)
+                if (entry.State != EntityState.Detached && entry.State != EntityState.Unchanged && entry.Entity is AuditableModel model)
                 {
-                    continue;
+                    if (entry.Properties is null)
+                    {
+                        throw new ArgumentException("Auditing change tracker entry properties were null");
+                    }
+
+                    var entityId = entry.Properties.Single(p => p.Metadata.IsPrimaryKey());
+
+                    if (entityId is null)
+                    {
+                        throw new ArgumentException("Auditing change tracker entry entityId was null");
+                    }
+
+                    if (entityId.CurrentValue is null)
+                    {
+                        throw new ArgumentException("Auditing change tracker entry current value was null");
+                    }
+
+                    model.LastUpdatedById = this.currentIdentity.UserId;
+                    if (entry.State == EntityState.Added)
+                    {
+                        model.CreatedById = this.currentIdentity.UserId;
+                    }
+
+                    var changes = entry.Properties.Select(p => new { p.Metadata.Name, p.CurrentValue });
+
+                    var auditEntry = new AuditEntry
+                    {
+                        ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
+                        EntityId = entityId.CurrentValue.ToString(),
+                        EntityName = entry.Metadata.ClrType.Name,
+                        ApplicationUserId = currentIdentity.UserId,
+                        ApplicationUserName = currentIdentity.Username,
+                        TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
+                        TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
+                    };
+
+                    auditEntries.Add(auditEntry);
                 }
-
-                // Do not audit our audits (should never be true, but this is here explicitly to safeguard against future accidents)
-                if (entry.Entity is AuditEntry)
-                {
-                    continue;
-                }
-
-                if (entry.Properties is null)
-                {
-                    throw new ArgumentException("Auditing change tracker entry properties were null");
-                }
-
-                var entityId = entry.Properties.Single(p => p.Metadata.IsPrimaryKey());
-
-                if (entityId is null)
-                {
-                    throw new ArgumentException("Auditing change tracker entry entityId was null");
-                }
-
-                if (entityId.CurrentValue is null)
-                {
-                    throw new ArgumentException("Auditing change tracker entry current value was null");
-                }
-
-                var changes = entry.Properties.Select(p => new { p.Metadata.Name, p.CurrentValue });
-
-                var auditEntry = new AuditEntry
-                {
-                    ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
-                    EntityId = entityId.CurrentValue.ToString(),
-                    EntityName = entry.Metadata.ClrType.Name,
-                    ApplicationUserId = currentIdentity.UserId,
-                    ApplicationUserName = currentIdentity.Username,
-                    TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
-                    TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
-                };
-
-                auditEntries.Add(auditEntry);
             }
-
         }
 
         private void CollateAuditChanges()

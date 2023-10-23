@@ -162,7 +162,7 @@
 
             var dto = await query.Handle(queryAuditEntriesRequest, CancellationToken.None);
             var first = dto.Data.First();
-            Assert.Equal("volutpat", first.ActionType);
+            Assert.Equal("orci", first.ActionType);
         }
 
         [Fact]

@@ -5,7 +5,7 @@ namespace EngineBay.Auditing
 
     public class AuditingDbContext : ModuleWriteDbContext
     {
-        public AuditingDbContext(DbContextOptions<ModuleWriteDbContext> options, TimestampInterceptor timestampInterceptor) : base(options, timestampInterceptor)
+        public AuditingDbContext(DbContextOptions<ModuleWriteDbContext> options) : base(options)
         {
         }
 
