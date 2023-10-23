@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-
-namespace EngineBay.Auditing
+﻿namespace EngineBay.Auditing
 {
+    using Microsoft.EntityFrameworkCore.Diagnostics;
+
     public interface IAuditingInterceptor : ISaveChangesInterceptor
     {
     }
