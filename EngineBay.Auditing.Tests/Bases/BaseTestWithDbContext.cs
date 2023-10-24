@@ -19,8 +19,6 @@
             ArgumentNullException.ThrowIfNull(context);
 
             this.DbContext = context;
-            this.DbContext.Database.EnsureDeleted();
-            this.DbContext.Database.EnsureCreated();
         }
 
         protected TContext DbContext { get; set; }
