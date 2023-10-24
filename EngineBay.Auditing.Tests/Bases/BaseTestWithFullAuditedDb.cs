@@ -14,7 +14,7 @@
             this.AuditDbContext = base.DbContext;
 
             var dbContextOptions = new DbContextOptionsBuilder<ModuleWriteDbContext>()
-                    .UseInMemoryDatabase(nameof(AuditInterceptorTests))
+                    .UseInMemoryDatabase(databaseName)
                     .EnableSensitiveDataLogging()
                     .Options;
 
