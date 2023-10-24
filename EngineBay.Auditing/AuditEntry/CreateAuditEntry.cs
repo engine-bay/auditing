@@ -14,15 +14,15 @@
             this.validator = validator;
         }
 
-        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest inputParameters, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest command, CancellationToken cancellation)
         {
-            if (inputParameters is null)
+            if (command is null)
             {
-                throw new ArgumentNullException(nameof(inputParameters));
+                throw new ArgumentNullException(nameof(command));
             }
 
-            await this.validator.ValidateAndThrowAsync(inputParameters, cancellation);
-            var auditEntry = inputParameters.ToDomainModel();
+            await this.validator.ValidateAndThrowAsync(command, cancellation);
+            var auditEntry = command.ToDomainModel();
 
             await dbContext.AuditEntries.AddAsync(auditEntry, cancellation);
             await dbContext.SaveChangesAsync(cancellation);

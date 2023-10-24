@@ -16,14 +16,14 @@
             this.dbContext = auditingDb;
         }
 
-        public async Task<AuditEntryDto> Handle(GetAuditEntryRequest queryParameters, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(GetAuditEntryRequest query, CancellationToken cancellation)
         {
-            if (queryParameters is null)
+            if (query is null)
             {
-                throw new ArgumentNullException(nameof(queryParameters));
+                throw new ArgumentNullException(nameof(query));
             }
 
-            Expression<Func<AuditEntry, bool>> filterPredicate = auditEntry => auditEntry.Id == queryParameters.Id;
+            Expression<Func<AuditEntry, bool>> filterPredicate = auditEntry => auditEntry.Id == query.Id;
 
             var auditEntry = await dbContext.AuditEntries
               .Where(filterPredicate)

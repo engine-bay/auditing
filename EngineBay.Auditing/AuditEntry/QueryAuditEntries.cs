@@ -1,7 +1,6 @@
-﻿using System.Globalization;
-
-namespace EngineBay.Auditing
+﻿namespace EngineBay.Auditing
 {
+    using System.Globalization;
     using EngineBay.Core;
     using LinqKit;
     using Microsoft.EntityFrameworkCore;
