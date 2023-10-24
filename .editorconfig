@@ -13,8 +13,12 @@ dotnet_diagnostic.CA1725.severity = silent
 # CS1591: XML comment documentation is horrible
 dotnet_diagnostic.CS1591.severity = silent
 dotnet_diagnostic.SA1600.severity = silent
-dotnet_diagnostic.SA1601.severity = silent 
-dotnet_diagnostic.SA1602.severity = silent 
+dotnet_diagnostic.SA1601.severity = silent
+dotnet_diagnostic.SA1602.severity = silent
+
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007
+# for .net core apps, ConfigureAwait(false) has no effect as there is no SynchronizationContext
+dotnet_diagnostic.CA2007.severity = silent
 
 # Treat all cs files in this folder as generated code
 [**/obj/**/*.cs]

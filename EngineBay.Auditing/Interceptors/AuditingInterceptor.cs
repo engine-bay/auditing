@@ -95,11 +95,11 @@
         {
             CollateAuditChanges();
 
-            await auditingWriteDbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await auditingWriteDbContext.SaveChangesAsync(cancellationToken);
 
             auditEntries = null;
 
-            return await base.SavedChangesAsync(eventData, result, cancellationToken).ConfigureAwait(false);
+            return await base.SavedChangesAsync(eventData, result, cancellationToken);
         }
 
         private void AuditChangesToEntity(DbContextEventData eventData)

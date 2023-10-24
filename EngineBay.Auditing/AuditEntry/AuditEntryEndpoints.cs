@@ -17,7 +17,7 @@
                 async (GetAuditEntry query, Guid id, CancellationToken cancellation) =>
             {
                 var getAuditEntryRequest = new GetAuditEntryRequest(id);
-                var dto = await query.Handle(getAuditEntryRequest, cancellation).ConfigureAwait(false);
+                var dto = await query.Handle(getAuditEntryRequest, cancellation);
                 return Results.Ok(dto);
             })
               .RequireAuthorization(ModulePolicies.ViewAuditEntries)
@@ -30,7 +30,7 @@
                     var paginationParameters = new PaginationParameters(skip, limit, sortBy, sortOrder);
                     var queryAuditEntriesRequest = new QueryAuditEntriesRequest(paginationParameters);
 
-                    var paginatedDtos = await query.Handle(queryAuditEntriesRequest, cancellation).ConfigureAwait(false);
+                    var paginatedDtos = await query.Handle(queryAuditEntriesRequest, cancellation);
                     return Results.Ok(paginatedDtos);
                 })
               .RequireAuthorization(ModulePolicies.ViewAuditEntries)

@@ -30,7 +30,7 @@
               .Select(auditEntry => new AuditEntryDto(auditEntry))
               .AsExpandable()
               .FirstOrDefaultAsync(cancellation)
-              .ConfigureAwait(false);
+              ;
 
             if (auditEntry == null)
             {

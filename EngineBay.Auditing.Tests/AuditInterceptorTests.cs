@@ -32,10 +32,8 @@
 
             this.fakeModels = tempFakeModels;
 
-            this.DbContext.RemoveRange(this.DbContext.ApplicationUsers);
             this.DbContext.AddRange(this.applicationUsers);
             this.DbContext.SaveChanges();
-            this.DbContext.RemoveRange(this.DbContext.FakeModels);
             this.DbContext.AddRange(this.fakeModels);
             this.DbContext.SaveChanges();
 

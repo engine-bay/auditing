@@ -21,11 +21,11 @@
                 throw new ArgumentNullException(nameof(inputParameters));
             }
 
-            await this.validator.ValidateAndThrowAsync(inputParameters, cancellation).ConfigureAwait(false);
+            await this.validator.ValidateAndThrowAsync(inputParameters, cancellation);
             var auditEntry = inputParameters.ToDomainModel();
 
-            await dbContext.AuditEntries.AddAsync(auditEntry, cancellation).ConfigureAwait(false);
-            await dbContext.SaveChangesAsync(cancellation).ConfigureAwait(false);
+            await dbContext.AuditEntries.AddAsync(auditEntry, cancellation);
+            await dbContext.SaveChangesAsync(cancellation);
             return new AuditEntryDto(auditEntry);
         }
     }

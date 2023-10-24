@@ -28,7 +28,7 @@ namespace EngineBay.Auditing
             var limit = queryParameters.PaginationParameters.Limit;
             var skip = limit > 0 ? queryParameters.PaginationParameters.Skip : 0;
 
-            var total = await query.CountAsync(cancellation).ConfigureAwait(false);
+            var total = await query.CountAsync(cancellation);
             var format = new DateTimeFormatInfo();
 
             Expression<Func<AuditEntry, string?>> sortByPredicate = queryParameters.PaginationParameters.SortBy switch
@@ -48,7 +48,7 @@ namespace EngineBay.Auditing
             query = this.Paginate(query, queryParameters.PaginationParameters);
 
             var auditEntries = limit > 0 ? await query
-                .ToListAsync(cancellation).ConfigureAwait(false)
+                .ToListAsync(cancellation)
               : new List<AuditEntry>();
 
             var auditEntryDtos = auditEntries.Select(auditEntry => new AuditEntryDto(auditEntry));

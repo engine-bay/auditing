@@ -8,6 +8,8 @@
     public class BaseTestWithFullAuditedDb<TContext> : BaseTestWithDbContext<AuditingWriteDbContext>
         where TContext : ModuleDbContext
     {
+        private bool isDisposed;
+
         public BaseTestWithFullAuditedDb(string databaseName)
             : base(databaseName + "AuditDb")
         {
@@ -39,6 +41,26 @@
         {
             this.AuditDbContext.AuditEntries.RemoveRange(this.AuditDbContext.AuditEntries);
             this.AuditDbContext.SaveChanges();
+        }
+
+        /// <inheritdoc/>
+        protected override void Dispose(bool disposing)
+        {
+            if (this.isDisposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                // free managed resources
+                this.DbContext.Database.EnsureDeleted();
+                this.DbContext.Dispose();
+
+                base.Dispose(disposing);
+            }
+
+            this.isDisposed = true;
         }
     }
 }
