@@ -16,12 +16,20 @@
             var applicationUsersPath = Path.GetFullPath(@"./TestData/application-users.json");
 
             var tempApplicationUsers = JsonConvert.DeserializeObject<List<ApplicationUser>>(File.ReadAllText(applicationUsersPath));
-            ArgumentNullException.ThrowIfNull(tempApplicationUsers);
+            if (tempApplicationUsers is null)
+            {
+                throw new ArgumentException("Application users not found at " + applicationUsersPath);
+            }
+
             this.applicationUsers = tempApplicationUsers;
 
             var fakeModelPath = Path.GetFullPath(@"./TestData/fake-models.json");
             var tempFakeModels = JsonConvert.DeserializeObject<List<FakeModel>>(File.ReadAllText(fakeModelPath));
-            ArgumentNullException.ThrowIfNull(tempFakeModels);
+            if (tempFakeModels is null)
+            {
+                throw new ArgumentException("Fake models not found at " + fakeModelPath);
+            }
+
             this.fakeModels = tempFakeModels;
 
             this.DbContext.RemoveRange(this.DbContext.ApplicationUsers);

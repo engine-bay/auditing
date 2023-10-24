@@ -18,7 +18,10 @@
 
         public async Task<AuditEntryDto> Handle(GetAuditEntryRequest queryParameters, CancellationToken cancellation)
         {
-            ArgumentNullException.ThrowIfNull(queryParameters, nameof(queryParameters));
+            if (queryParameters is null)
+            {
+                throw new ArgumentNullException(nameof(queryParameters));
+            }
 
             Expression<Func<AuditEntry, bool>> filterPredicate = auditEntry => auditEntry.Id == queryParameters.Id;
 

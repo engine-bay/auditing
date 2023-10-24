@@ -15,8 +15,10 @@
                     .EnableSensitiveDataLogging()
                     .Options;
 
-            var context = Activator.CreateInstance(typeof(TContext), dbContextOptions) as TContext;
-            ArgumentNullException.ThrowIfNull(context);
+            if (Activator.CreateInstance(typeof(TContext), dbContextOptions) is not TContext context)
+            {
+                throw new ArgumentException("Context not created!");
+            }
 
             this.DbContext = context;
         }

@@ -21,8 +21,10 @@
             this.currentIdentity = new FakeUserIdentity();
             var interceptor = new AuditingInterceptor(this.currentIdentity, this.AuditDbContext);
 
-            var context = Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) as TContext;
-            ArgumentNullException.ThrowIfNull(context);
+            if (Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) is not TContext context)
+            {
+                throw new ArgumentException("Context not created!");
+            }
 
             this.DbContext = context;
         }

@@ -30,7 +30,10 @@
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
-            ArgumentNullException.ThrowIfNull(eventData);
+            if (eventData is null)
+            {
+                throw new ArgumentNullException(nameof(eventData));
+            }
 
             AuditChangesToEntity(eventData);
 
@@ -39,7 +42,10 @@
 
         public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(eventData);
+            if (eventData is null)
+            {
+                throw new ArgumentNullException(nameof(eventData));
+            }
 
             AuditChangesToEntity(eventData);
 
@@ -100,7 +106,10 @@
         {
             var changeTrackerEntries = eventData.Context?.ChangeTracker.Entries();
 
-            ArgumentNullException.ThrowIfNull(changeTrackerEntries);
+            if (changeTrackerEntries is null)
+            {
+                throw new ArgumentException(nameof(eventData) + " does not contain change tracket entries");
+            }
 
             auditEntries = new List<AuditEntry>();
 
