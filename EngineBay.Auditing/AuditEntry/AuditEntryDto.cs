@@ -1,6 +1,5 @@
 ﻿namespace EngineBay.Auditing;
 
-using EngineBay.Persistence;
 using System;
 
 public class AuditEntryDto
@@ -14,7 +13,7 @@ public class AuditEntryDto
 
         this.Id = auditEntry.Id;
         this.ApplicationUserId = auditEntry.ApplicationUserId ?? Guid.Empty;
-        this.ApplicationUserName = auditEntry.ApplicationUser?.Username;
+        this.ApplicationUserName = auditEntry.ApplicationUserName ?? string.Empty;
         this.EntityName = auditEntry.EntityName ?? string.Empty;
         this.ActionType = auditEntry.ActionType ?? string.Empty;
         this.EntityId = auditEntry.EntityId ?? string.Empty;

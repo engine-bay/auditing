@@ -5,19 +5,18 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
-    using System.Security.Claims;
 
     public static class AuditEntryEndpoints
     {
         private static readonly string[] AuditTags = { ApiGroupNames.AuditEntries };
 
-        public static void MapEndpoints(RouteGroupBuilder endpoints)
+        public static void MapEndpoints(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet(
                 "/audit-entries/{id:guid}",
-                async (GetAuditEntry query, Guid id, ClaimsPrincipal claimsPrincipal, CancellationToken cancellation) =>
+                async (GetAuditEntry query, Guid id, CancellationToken cancellation) =>
             {
-                var getAuditEntryRequest = new GetAuditEntryRequest(claimsPrincipal, id);
+                var getAuditEntryRequest = new GetAuditEntryRequest(id);
                 var dto = await query.Handle(getAuditEntryRequest, cancellation);
                 return Results.Ok(dto);
             })
@@ -26,10 +25,10 @@
 
             endpoints.MapGet(
                 "/audit-entries",
-                async (QueryAuditEntries query, int? skip, int? limit, string? sortBy, SortOrderType? sortOrder, ClaimsPrincipal claimsPrincipal, CancellationToken cancellation) =>
+                async (QueryAuditEntries query, int? skip, int? limit, string? sortBy, SortOrderType? sortOrder, CancellationToken cancellation) =>
                 {
                     var paginationParameters = new PaginationParameters(skip, limit, sortBy, sortOrder);
-                    var queryAuditEntriesRequest = new QueryAuditEntriesRequest(claimsPrincipal, paginationParameters);
+                    var queryAuditEntriesRequest = new QueryAuditEntriesRequest(paginationParameters);
 
                     var paginatedDtos = await query.Handle(queryAuditEntriesRequest, cancellation);
                     return Results.Ok(paginatedDtos);

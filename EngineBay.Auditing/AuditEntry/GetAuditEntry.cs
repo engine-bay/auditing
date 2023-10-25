@@ -2,7 +2,6 @@
 {
 
     using EngineBay.Core;
-    using EngineBay.Persistence;
     using LinqKit;
     using Microsoft.EntityFrameworkCore;
     using System.Linq.Expressions;
@@ -17,20 +16,21 @@
             this.dbContext = auditingDb;
         }
 
-        public async Task<AuditEntryDto> Handle(GetAuditEntryRequest getAuditEntryRequest, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(GetAuditEntryRequest query, CancellationToken cancellation)
         {
-
-            if (getAuditEntryRequest?.ClaimsPrincipal == null)
+            if (query is null)
             {
-                throw new ArgumentNullException(nameof(getAuditEntryRequest));
+                throw new ArgumentNullException(nameof(query));
             }
-            Expression<Func<AuditEntry, bool>> filterPredicate = auditEntry => auditEntry.Id == getAuditEntryRequest.Id;
 
-            var auditEntry = await this.dbContext.AuditEntries
+            Expression<Func<AuditEntry, bool>> filterPredicate = auditEntry => auditEntry.Id == query.Id;
+
+            var auditEntry = await dbContext.AuditEntries
               .Where(filterPredicate)
               .Select(auditEntry => new AuditEntryDto(auditEntry))
               .AsExpandable()
-              .FirstOrDefaultAsync(cancellation);
+              .FirstOrDefaultAsync(cancellation)
+              ;
 
             if (auditEntry == null)
             {

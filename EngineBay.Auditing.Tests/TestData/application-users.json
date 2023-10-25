@@ -1,0 +1,27 @@
+[
+  {
+    "Id": "a06381d5-b12f-4033-bce2-203418e696d7",
+    "CreatedAt": "2023/10/02",
+    "Username": "Alice"
+  },
+  {
+    "Id": "e7bdd63a-e8a7-4496-bddb-373bcf4efe2a",
+    "CreatedAt": "2023/10/01",
+    "Username": "Bob"
+  },
+  {
+    "Id": "96c39e4b-0d5f-479b-a341-eebffcf6fc3c",
+    "CreatedAt": "2023/9/30",
+    "Username": "Carol"
+  },
+  {
+    "Id": "424e7869-d146-4248-90a1-7de85a699011",
+    "CreatedAt": "2023/9/29",
+    "Username": "Dave"
+  },
+  {
+    "Id": "a6e544b1-a13d-4b44-a53b-0355b377e708",
+    "CreatedAt": "2023/9/28",
+    "Username": "Emma"
+  }
+]

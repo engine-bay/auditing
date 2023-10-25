@@ -1,34 +1,31 @@
-﻿
-namespace EngineBay.Auditing
+﻿namespace EngineBay.Auditing
 {
-
     using EngineBay.Core;
     using FluentValidation;
-    using System.Security.Claims;
 
-    public class CreateAuditEntry : ICommandHandler<CreateAuditEntryRequest, AuditEntryDto>
+    public class CreateAuditEntry : IClaimlessCommandHandler<CreateAuditEntryRequest, AuditEntryDto>
     {
-
         private readonly AuditingWriteDbContext dbContext;
         private readonly IValidator<CreateAuditEntryRequest> validator;
 
-        public CreateAuditEntry(AuditingWriteDbContext dbContext)
+        public CreateAuditEntry(AuditingWriteDbContext dbContext, IValidator<CreateAuditEntryRequest> validator)
         {
             this.dbContext = dbContext;
+            this.validator = validator;
         }
 
-        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest createAuditEntryRequest, ClaimsPrincipal user, CancellationToken cancellation)
+        public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest command, CancellationToken cancellation)
         {
-            if (createAuditEntryRequest == null)
+            if (command is null)
             {
-                throw new ArgumentNullException(nameof(createAuditEntryRequest));
+                throw new ArgumentNullException(nameof(command));
             }
 
-            this.validator.ValidateAndThrow(createAuditEntryRequest);
-            var auditEntry = createAuditEntryRequest.ToDomainModel();
+            await this.validator.ValidateAndThrowAsync(command, cancellation);
+            var auditEntry = command.ToDomainModel();
 
-            await this.dbContext.AuditEntries.AddAsync(auditEntry, cancellation);
-            await this.dbContext.SaveChangesAsync(cancellation);
+            await dbContext.AuditEntries.AddAsync(auditEntry, cancellation);
+            await dbContext.SaveChangesAsync(cancellation);
             return new AuditEntryDto(auditEntry);
         }
     }
