@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <RootNamespace>EngineBay.Auditing</RootNamespace>
@@ -42,7 +42,7 @@
 	</Choose>
 	
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.7.1" />
+        <PackageReference Include="FluentValidation" Version="11.8.0" />
     </ItemGroup>
 
 
