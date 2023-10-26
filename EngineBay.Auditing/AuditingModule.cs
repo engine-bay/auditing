@@ -1,6 +1,7 @@
 ﻿namespace EngineBay.Auditing
 {
     using EngineBay.Core;
+    using EngineBay.Persistence;
     using FluentValidation;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Routing;
@@ -22,7 +23,10 @@
             // Register validators
             services.AddTransient<IValidator<CreateAuditEntryRequest>, CreateAuditEntryValidator>();
 
-            services.AddTransient<AuditingInterceptor>();
+            services.AddTransient<IAuditingInterceptor, AuditingInterceptor>();
+
+            var databaseConfiguration = new CQRSDatabaseConfiguration<AuditingDbContext, AuditingQueryDbContext, AuditingWriteDbContext>();
+            databaseConfiguration.RegisterDatabases(services);
 
             return services;
         }
