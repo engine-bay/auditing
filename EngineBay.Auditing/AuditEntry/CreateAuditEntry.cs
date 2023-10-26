@@ -3,7 +3,7 @@
     using EngineBay.Core;
     using FluentValidation;
 
-    public class CreateAuditEntry : IClaimlessCommandHandler<CreateAuditEntryRequest, AuditEntryDto>
+    public class CreateAuditEntry : ICommandHandler<CreateAuditEntryRequest, AuditEntryDto>
     {
         private readonly AuditingWriteDbContext dbContext;
         private readonly IValidator<CreateAuditEntryRequest> validator;
