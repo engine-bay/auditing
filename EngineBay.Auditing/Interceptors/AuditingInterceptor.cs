@@ -40,16 +40,16 @@
             return base.SavingChanges(eventData, result);
         }
 
-        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             if (eventData is null)
             {
                 throw new ArgumentNullException(nameof(eventData));
             }
 
-            AuditChangesToEntity(eventData);
+            await AuditChangesToEntityAsync(eventData, cancellationToken);
 
-            return base.SavingChangesAsync(eventData, result, cancellationToken);
+            return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
 
         public override void SaveChangesCanceled(DbContextEventData eventData)
@@ -104,6 +104,11 @@
 
         private void AuditChangesToEntity(DbContextEventData eventData)
         {
+            this.AuditChangesToEntityAsync(eventData, CancellationToken.None).Wait();
+        }
+
+        private async Task AuditChangesToEntityAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
+        {
             var changeTrackerEntries = eventData.Context?.ChangeTracker.Entries();
 
             if (changeTrackerEntries is null)
@@ -148,8 +153,8 @@
                         ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
                         EntityId = entityId.CurrentValue.ToString(),
                         EntityName = entry.Metadata.ClrType.Name,
-                        ApplicationUserId = currentIdentity.UserId,
-                        ApplicationUserName = currentIdentity.Username,
+                        ApplicationUserId = await currentIdentity.GetUserIdAsync(cancellationToken),
+                        ApplicationUserName = await currentIdentity.GetUsernameAsync(cancellationToken),
                         TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
                         TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
                     };
