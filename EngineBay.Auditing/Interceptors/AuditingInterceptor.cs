@@ -15,6 +15,7 @@
         private readonly ICurrentIdentity currentIdentity;
         private readonly AuditingWriteDbContext auditingWriteDbContext;
         private readonly JsonSerializerSettings jsonSerializerSettings;
+        private readonly bool auditingEnabled;
 
         private List<AuditEntry>? auditEntries;
 
@@ -26,6 +27,8 @@
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             };
+
+            this.auditingEnabled = BaseDatabaseConfiguration.IsAuditingEnabled();
         }
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
@@ -35,7 +38,8 @@
                 throw new ArgumentNullException(nameof(eventData));
             }
 
-            AuditChangesToEntity(eventData);
+            if (auditingEnabled)
+                AuditChangesToEntity(eventData);
 
             return base.SavingChanges(eventData, result);
         }
@@ -47,7 +51,8 @@
                 throw new ArgumentNullException(nameof(eventData));
             }
 
-            await AuditChangesToEntityAsync(eventData, cancellationToken);
+            if (auditingEnabled)
+                await AuditChangesToEntityAsync(eventData, cancellationToken);
 
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
@@ -82,22 +87,28 @@
 
         public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
         {
-            CollateAuditChanges();
+            if (auditingEnabled)
+            {
+                CollateAuditChanges();
 
-            auditingWriteDbContext.SaveChanges();
+                auditingWriteDbContext.SaveChanges();
 
-            auditEntries = null;
+                auditEntries = null;
+            }
 
             return base.SavedChanges(eventData, result);
         }
 
         public async override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
-            CollateAuditChanges();
+            if (auditingEnabled)
+            {
+                CollateAuditChanges();
 
-            await auditingWriteDbContext.SaveChangesAsync(cancellationToken);
+                await auditingWriteDbContext.SaveChangesAsync(cancellationToken);
 
-            auditEntries = null;
+                auditEntries = null;
+            }
 
             return await base.SavedChangesAsync(eventData, result, cancellationToken);
         }
