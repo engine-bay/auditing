@@ -12,6 +12,6 @@
 
         public Guid UserId { get; }
 
-        public string? Username { get; }
+        public string Username { get; }
     }
 }

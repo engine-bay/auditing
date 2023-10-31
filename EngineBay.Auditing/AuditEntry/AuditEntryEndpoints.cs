@@ -20,7 +20,7 @@
                 var dto = await query.Handle(getAuditEntryRequest, cancellation);
                 return Results.Ok(dto);
             })
-              .RequireAuthorization(ModulePolicies.ViewAuditEntries)
+              //.RequireAuthorization(ModulePolicies.ViewAuditEntries)
               .WithTags(AuditTags);
 
             endpoints.MapGet(
@@ -33,7 +33,7 @@
                     var paginatedDtos = await query.Handle(queryAuditEntriesRequest, cancellation);
                     return Results.Ok(paginatedDtos);
                 })
-              .RequireAuthorization(ModulePolicies.ViewAuditEntries)
+              //.RequireAuthorization(ModulePolicies.ViewAuditEntries)
               .WithTags(AuditTags);
 
             // Don't expose create entry as an endpoint, only our app should have access to it
