@@ -28,7 +28,7 @@
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             };
 
-            this.auditingEnabled = BaseDatabaseConfiguration.IsAuditingEnabled();
+            this.auditingEnabled = AuditingConfiguration.IsAuditingEnabled();
         }
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
