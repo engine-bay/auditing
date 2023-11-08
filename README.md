@@ -58,41 +58,13 @@ The interceptor will trigger anytime you save changes to a DbSet from this DbCon
 
 ### Registration
 
-This module cannot run on its own. You will need to register it and its DbContext in your application to use its functionality. See [EngineBay.CommunityEdition](https://github.com/engine-bay/engine-bay-ce)'s example of [module registration](https://github.com/engine-bay/engine-bay-ce/blob/main/EngineBay.CommunityEdition/Modules/ModuleRegistration.cs) for an example of how to do this. 
-
-```cs
-        public static IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(DbContextOptions<ModuleWriteDbContext> dbOptions)
-        {
-            var dbContexts = new List<IModuleDbContext>
-            {
-                new AuditingDbContext(dbOptions),
-                // Other DbContexts...
-            };
-
-            return dbContexts;
-        }
-
-        private static IEnumerable<IModule> GetRegisteredModules()
-        {
-            var modules = new List<IModule>();
-
-            modules.Add(new AuditingModule());
-            // Other modules...
-
-            Console.WriteLine($"Discovered {modules.Count} EngineBay modules");
-            return modules;
-        }
-```
+This module cannot run on its own. You will need to register it in your application to use its functionality. See the [Demo API registration guide](https://github.com/engine-bay/demo-api).
 
 ### Environment Variables
 
-The following environment variables control the auditing behavior.
-
-| Environment variable | Default value |         Options         | Description                                                                                                                                                                                                                                        |
-|:---------------------|:-------------:|:-----------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `AUDITING_ENABLED`   |    `true`     | `true`, `false`, `none` | This can disable tracking and auditing of changes saved to the database. It is not recommended to disable this unless EngineBay is processing PII data. Disabling auditing can provide a slight performance boost if traceability is not required. |
+See the [Documentation Portal](https://github.com/engine-bay/documentation-portal/blob/main/EngineBay.DocumentationPortal/DocumentationPortal/docs/documentation/configuration/environment-variables.md#data-protection).
 
 ## Dependencies
 
-* [EngineBay.Core](https://github.com/engine-bay/core): Provides several shared classes and base interfaces.
-* [EngineBay.Persistence](https://github.com/engine-bay/persistence): Provides a framework to connect to a database, as well as some classes like the AuditableModel.
+* [EngineBay.Core](https://github.com/engine-bay/core)
+* [EngineBay.Persistence](https://github.com/engine-bay/persistence)
