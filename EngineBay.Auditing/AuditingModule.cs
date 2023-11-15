@@ -5,11 +5,12 @@
     using FluentValidation;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Routing;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using System;
 
-    public class AuditingModule : IModule
+    public class AuditingModule : IModule, IDatabaseModule
     {
         public IServiceCollection RegisterModule(IServiceCollection services, IConfiguration configuration)
         {
@@ -50,6 +51,11 @@
         public void SeedDatabase(string seedDataPath, IServiceProvider serviceProvider)
         {
             return;
+        }
+
+        public IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(DbContextOptions<ModuleWriteDbContext> dbOptions)
+        {
+            return new IModuleDbContext[] { new AuditingDbContext(dbOptions) };
         }
     }
 }

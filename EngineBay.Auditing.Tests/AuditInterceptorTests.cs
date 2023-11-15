@@ -59,7 +59,7 @@
             Assert.NotNull(audit);
             Assert.Contains(name, audit.Changes);
             Assert.Contains(description, audit.Changes);
-            Assert.Equal(this.currentIdentity.UserId, modelToSave.CreatedById);
+            Assert.Equal(this.CurrentIdentity.UserId, modelToSave.CreatedById);
         }
 
         [Theory]
@@ -84,7 +84,7 @@
             Assert.Equal(1, numberOfAudits);
             Assert.NotNull(audit);
             Assert.Contains(newDescription, audit.Changes);
-            Assert.Equal(this.currentIdentity.UserId, modelToUpdate.LastUpdatedById);
+            Assert.Equal(this.CurrentIdentity.UserId, modelToUpdate.LastUpdatedById);
         }
 
         [Theory]

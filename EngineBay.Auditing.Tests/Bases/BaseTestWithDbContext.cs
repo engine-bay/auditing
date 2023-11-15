@@ -25,16 +25,12 @@
 
         protected TContext DbContext { get; set; }
 
-        /// <inheritdoc/>
-        // Dispose() calls Dispose(true)
         public void Dispose()
         {
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        /// <inheritdoc/>
-        // The bulk of the clean-up code is implemented in Dispose(bool)
         protected virtual void Dispose(bool disposing)
         {
             if (this.isDisposed)

@@ -8,16 +8,16 @@
         <Authors>EngineBay</Authors>
         <Company>EngineBay</Company>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
-		<!--<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>-->
+        <!--<PackageReadmeFile>README.md</PackageReadmeFile>-->
+        <!--<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>-->
         <PackageProjectUrl>https://github.com/engine-bay/auditing</PackageProjectUrl>
         <RepositoryUrl>https://github.com/engine-bay/auditing</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <TargetType>library</TargetType>
         <IsPackable>true</IsPackable>
-		<OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
-	
+
     <PropertyGroup>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -25,22 +25,22 @@
         <IsTrimmable>false</IsTrimmable>
     </PropertyGroup>
 
-	<Choose>
-		<When Condition="'$(ASPNETCORE_ENVIRONMENT)' == 'Development'">
-			<ItemGroup>
-				<ProjectReference Include="../../core/EngineBay.Core/EngineBay.Core.csproj" />
-				<ProjectReference
+    <Choose>
+        <When Condition="'$(ASPNETCORE_ENVIRONMENT)' == 'Development'">
+            <ItemGroup>
+                <ProjectReference Include="../../core/EngineBay.Core/EngineBay.Core.csproj" />
+                <ProjectReference
                     Include="../../persistence/EngineBay.Persistence/EngineBay.Persistence.csproj" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<PackageReference Include="EngineBay.Core" Version="7.0.0" />
-				<PackageReference Include="EngineBay.Persistence" Version="5.0.0" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
-	
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <PackageReference Include="EngineBay.Core" Version="7.0.4" />
+                <PackageReference Include="EngineBay.Persistence" Version="5.0.5" />
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+
     <ItemGroup>
         <PackageReference Include="FluentValidation" Version="11.8.0" />
     </ItemGroup>
