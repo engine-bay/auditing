@@ -20,8 +20,8 @@
                     .EnableSensitiveDataLogging()
                     .Options;
 
-            this.currentIdentity = new FakeUserIdentity();
-            var interceptor = new AuditingInterceptor(this.currentIdentity, this.AuditDbContext);
+            this.CurrentIdentity = new FakeUserIdentity();
+            var interceptor = new AuditingInterceptor(this.CurrentIdentity, this.AuditDbContext);
 
             if (Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) is not TContext context)
             {
@@ -35,7 +35,7 @@
 
         protected AuditingWriteDbContext AuditDbContext { get; set; }
 
-        protected ICurrentIdentity currentIdentity { get; set; }
+        protected ICurrentIdentity CurrentIdentity { get; set; }
 
         protected void ResetAuditEntries()
         {
