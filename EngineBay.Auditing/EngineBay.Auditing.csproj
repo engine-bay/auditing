@@ -36,7 +36,7 @@
         <Otherwise>
             <ItemGroup>
                 <PackageReference Include="EngineBay.Core" Version="7.0.4" />
-                <PackageReference Include="EngineBay.Persistence" Version="5.0.5" />
+                <PackageReference Include="EngineBay.Persistence" Version="5.0.6" />
             </ItemGroup>
         </Otherwise>
     </Choose>
