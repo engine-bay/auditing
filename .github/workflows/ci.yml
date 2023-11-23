@@ -1,66 +1,66 @@
 name: Continious Integration
 
-on: 
-  push: 
+on:
+  push:
     branches: [ "main" ]
-  pull_request: 
+  pull_request:
     branches: [ "main" ]
 
-jobs: 
-  build: 
+jobs:
+  build:
     name: Build
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
-        with: 
-          dotnet-version: 7.0.x
+        with:
+          dotnet-version: 8.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-  test: 
+  test:
     needs: [ build ]
     name: Test
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
-        with: 
-          dotnet-version: 7.0.x
+        with:
+          dotnet-version: 8.0.x
       - run: dotnet tool restore
       - run: dotnet coverage collect dotnet test --output ./output.cobertura.xml --output-format cobertura
       - run: dotnet reportgenerator -reports:./output.cobertura.xml -targetdir:"." -reporttypes:Clover -assemblyfilters:"-Humanizer;-Microsoft.TestPlatform*;-Microsoft.VisualStudio*;-xunit*;"
-# TODO       
-#      - uses: paambaati/codeclimate-action@v3.2.0
-#        env: 
-#          CC_TEST_REPORTER_ID: 
-#        with: 
+# TODO
+#      - uses: paambaati/codeclimate-action@v5.0.0
+#        env:
+#          CC_TEST_REPORTER_ID:
+#        with:
 #          coverageLocations: ${{github.workspace}}/Clover.xml:clover
-  analyze: 
+  analyze:
     needs: [ build ]
     name: Analyze
     runs-on: ubuntu-latest
-    permissions: 
+    permissions:
       actions: read
       contents: read
       security-events: write
-    strategy: 
+    strategy:
       fail-fast: false
-      matrix: 
+      matrix:
         language: [ 'csharp' ]
-    steps: 
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
-        with: 
+        with:
           languages: ${{ matrix.language }}
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
-        with: 
+        with:
           category: "/language:${{matrix.language}}"

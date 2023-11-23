@@ -16,10 +16,8 @@
 
         public async Task<AuditEntryDto> Handle(CreateAuditEntryRequest command, CancellationToken cancellation)
         {
-            if (command is null)
-            {
-                throw new ArgumentNullException(nameof(command));
-            }
+            ArgumentNullException.ThrowIfNull(command);
+
 
             await this.validator.ValidateAndThrowAsync(command, cancellation);
             var auditEntry = command.ToDomainModel();

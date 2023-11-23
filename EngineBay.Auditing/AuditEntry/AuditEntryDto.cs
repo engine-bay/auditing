@@ -6,10 +6,7 @@ public class AuditEntryDto
 {
     public AuditEntryDto(AuditEntry auditEntry)
     {
-        if (auditEntry is null)
-        {
-            throw new ArgumentNullException(nameof(auditEntry));
-        }
+        ArgumentNullException.ThrowIfNull(auditEntry);
 
         this.Id = auditEntry.Id;
         this.ApplicationUserId = auditEntry.ApplicationUserId ?? Guid.Empty;
