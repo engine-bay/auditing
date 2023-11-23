@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>EngineBay.Auditing</RootNamespace>
         <PackageId>EngineBay.Auditing</PackageId>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -35,8 +35,8 @@
         </When>
         <Otherwise>
             <ItemGroup>
-                <PackageReference Include="EngineBay.Core" Version="7.0.4" />
-                <PackageReference Include="EngineBay.Persistence" Version="5.0.5" />
+                <PackageReference Include="EngineBay.Core" Version="8.0.1" />
+                <PackageReference Include="EngineBay.Persistence" Version="6.0.0" />
             </ItemGroup>
         </Otherwise>
     </Choose>

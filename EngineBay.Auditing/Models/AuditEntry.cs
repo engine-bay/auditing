@@ -31,10 +31,7 @@ namespace EngineBay.Auditing
 #pragma warning restore CA2227
         public static new void CreateDataAnnotations(ModelBuilder modelBuilder)
         {
-            if (modelBuilder is null)
-            {
-                throw new ArgumentNullException(nameof(modelBuilder));
-            }
+            ArgumentNullException.ThrowIfNull(modelBuilder);
 
             modelBuilder.Entity<AuditEntry>().ToTable(typeof(AuditEntry).Name.Pluralize());
 

@@ -1,19 +1,19 @@
 name: Continious Delivery
 
-on: 
-  push: 
-    tags: 
+on:
+  push:
+    tags:
       - '*'
 
-jobs: 
-  publish: 
+jobs:
+  publish:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v3
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
-        with: 
-          dotnet-version: 7.0.x
+        with:
+          dotnet-version: 8.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Test
