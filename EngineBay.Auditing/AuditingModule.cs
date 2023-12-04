@@ -26,7 +26,8 @@
 
             services.AddTransient<IAuditingInterceptor, AuditingInterceptor>();
 
-            var databaseConfiguration = new CQRSDatabaseConfiguration<AuditingDbContext, AuditingQueryDbContext, AuditingWriteDbContext>();
+            var databaseConfiguration =
+                new CQRSDatabaseConfiguration<AuditingDbContext, AuditingQueryDbContext, AuditingWriteDbContext>();
             databaseConfiguration.RegisterDatabases(services);
 
             return services;
@@ -53,7 +54,8 @@
             return;
         }
 
-        public IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(DbContextOptions<ModuleWriteDbContext> dbOptions)
+        public IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(
+            DbContextOptions<ModuleWriteDbContext> dbOptions)
         {
             return new IModuleDbContext[] { new AuditingDbContext(dbOptions) };
         }
