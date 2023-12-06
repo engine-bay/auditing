@@ -46,7 +46,7 @@
             ArgumentNullException.ThrowIfNull(eventData);
 
             if (auditingEnabled)
-                await AuditChangesToEntityAsync(eventData, cancellationToken);
+                AuditChangesToEntity(eventData);
 
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
         }
@@ -109,11 +109,6 @@
 
         private void AuditChangesToEntity(DbContextEventData eventData)
         {
-            this.AuditChangesToEntityAsync(eventData, CancellationToken.None).Wait();
-        }
-
-        private async Task AuditChangesToEntityAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
-        {
             var changeTrackerEntries = eventData.Context?.ChangeTracker.Entries();
 
             if (changeTrackerEntries is null)
@@ -158,8 +153,8 @@
                         ActionType = entry.State == EntityState.Added ? DatabaseOperationConstants.INSERT : entry.State == EntityState.Deleted ? DatabaseOperationConstants.DELETE : DatabaseOperationConstants.UPDATE,
                         EntityId = entityId.CurrentValue.ToString(),
                         EntityName = entry.Metadata.ClrType.Name,
-                        ApplicationUserId = await currentIdentity.GetUserIdAsync(cancellationToken),
-                        ApplicationUserName = await currentIdentity.GetUsernameAsync(cancellationToken),
+                        ApplicationUserId = currentIdentity.UserId,
+                        ApplicationUserName = currentIdentity.Username,
                         TempChanges = changes.ToDictionary(i => i.Name, i => i.CurrentValue),
                         TempProperties = entry.Properties.Where(p => p.IsTemporary).ToList(),
                     };
