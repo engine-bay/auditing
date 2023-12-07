@@ -35,14 +35,14 @@
         </When>
         <Otherwise>
             <ItemGroup>
-                <PackageReference Include="EngineBay.Core" Version="8.0.1" />
-                <PackageReference Include="EngineBay.Persistence" Version="6.0.1" />
+                <PackageReference Include="EngineBay.Core" Version="9.0.0" />
+                <PackageReference Include="EngineBay.Persistence" Version="6.0.3" />
             </ItemGroup>
         </Otherwise>
     </Choose>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.8.0" />
+        <PackageReference Include="FluentValidation" Version="11.8.1" />
     </ItemGroup>
 
 
