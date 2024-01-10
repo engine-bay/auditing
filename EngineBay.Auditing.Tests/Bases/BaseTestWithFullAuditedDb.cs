@@ -4,6 +4,7 @@
     using EngineBay.Core;
     using EngineBay.Persistence;
     using Microsoft.EntityFrameworkCore;
+    using NSubstitute;
 
     public class BaseTestWithFullAuditedDb<TContext> : BaseTestWithDbContext<AuditingWriteDbContext>
         where TContext : ModuleDbContext
@@ -21,9 +22,10 @@
                     .Options;
 
             this.CurrentIdentity = new FakeUserIdentity();
-            var interceptor = new AuditingInterceptor(this.CurrentIdentity, this.AuditDbContext);
+            var auditingInterceptor = new AuditingInterceptor(this.CurrentIdentity, this.AuditDbContext);
+            var auditableModelInterceptor = new AuditableModelInterceptor(this.CurrentIdentity);
 
-            if (Activator.CreateInstance(typeof(TContext), dbContextOptions, interceptor) is not TContext context)
+            if (Activator.CreateInstance(typeof(TContext), dbContextOptions, auditingInterceptor, auditableModelInterceptor) is not TContext context)
             {
                 throw new ArgumentException("Context not created!");
             }

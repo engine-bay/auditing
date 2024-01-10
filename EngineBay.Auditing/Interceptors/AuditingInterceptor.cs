@@ -140,12 +140,6 @@
                         throw new ArgumentException("Auditing change tracker entry current value was null");
                     }
 
-                    model.LastUpdatedById = this.currentIdentity.UserId;
-                    if (entry.State == EntityState.Added)
-                    {
-                        model.CreatedById = this.currentIdentity.UserId;
-                    }
-
                     var changes = entry.Properties.Select(p => new { p.Metadata.Name, p.CurrentValue });
 
                     var auditEntry = new AuditEntry
