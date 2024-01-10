@@ -2,7 +2,7 @@ namespace EngineBay.Auditing
 {
     using System;
     using System.ComponentModel.DataAnnotations.Schema;
-    using EngineBay.Core;
+    using EngineBay.Persistence;
     using Humanizer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.ChangeTracking;
