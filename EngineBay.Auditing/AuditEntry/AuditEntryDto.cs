@@ -4,6 +4,17 @@ using System;
 
 public class AuditEntryDto
 {
+    public AuditEntryDto()
+    {
+        this.Id = Guid.Empty;
+        this.ApplicationUserId = Guid.Empty;
+        this.ActionType = string.Empty;
+        this.EntityName = string.Empty;
+        this.EntityId = string.Empty;
+        this.Changes = string.Empty;
+        this.CreatedAt = DateTime.MinValue;
+    }
+
     public AuditEntryDto(AuditEntry auditEntry)
     {
         ArgumentNullException.ThrowIfNull(auditEntry);
