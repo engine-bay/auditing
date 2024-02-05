@@ -1,7 +1,9 @@
 ﻿namespace EngineBay.Auditing
 {
     using EngineBay.Core;
+    using EngineBay.DemoModule;
     using EngineBay.Persistence;
+    using EngineBay.Telemetry;
     using LinqKit;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -33,6 +35,8 @@
 
         public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
         {
+            using var activity = EngineBayActivitySource.Source.StartActivity(TracingActivityNameConstants.Interceptor + AuditActivityNameConstants.Saving);
+
             ArgumentNullException.ThrowIfNull(eventData);
 
             if (auditingEnabled)
@@ -43,6 +47,8 @@
 
         public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
+            using var activity = EngineBayActivitySource.Source.StartActivity(TracingActivityNameConstants.Interceptor + AuditActivityNameConstants.Saving + AuditActivityNameConstants.Async);
+
             ArgumentNullException.ThrowIfNull(eventData);
 
             if (auditingEnabled)
@@ -81,6 +87,8 @@
 
         public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
         {
+            using var activity = EngineBayActivitySource.Source.StartActivity(TracingActivityNameConstants.Interceptor + AuditActivityNameConstants.Saved);
+
             if (auditingEnabled)
             {
                 CollateAuditChanges();
@@ -95,6 +103,8 @@
 
         public async override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
+            using var activity = EngineBayActivitySource.Source.StartActivity(TracingActivityNameConstants.Interceptor + AuditActivityNameConstants.Saved + AuditActivityNameConstants.Async);
+
             if (auditingEnabled)
             {
                 CollateAuditChanges();
