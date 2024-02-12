@@ -5,7 +5,6 @@
     using FluentValidation;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Routing;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using System;
@@ -53,9 +52,11 @@
             return;
         }
 
-        public IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(DbContextOptions<ModuleWriteDbContext> dbOptions)
+        public IReadOnlyCollection<IModuleDbContext> GetRegisteredDbContexts(IDbContextOptionsFactory dbContextOptionsFactory)
         {
-            return new IModuleDbContext[] { new AuditingDbContext(dbOptions) };
+            ArgumentNullException.ThrowIfNull(dbContextOptionsFactory);
+
+            return new IModuleDbContext[] { new AuditingDbContext(dbContextOptionsFactory.GetDbContextOptions<ModuleWriteDbContext>()) };
         }
     }
 }
